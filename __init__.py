@@ -1,4 +1,4 @@
-from .diffbir.node import DiffBIR_sample
+from .diffbir.sampler import DiffBIR_sample
 
 NODE_CLASS_MAPPINGS = {
     "DiffBIR_sample": DiffBIR_sample,
