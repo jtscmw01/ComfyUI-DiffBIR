@@ -60,28 +60,31 @@ class InferenceLoop:
         ...
 
     @count_vram_usage
-    def init_stage2_model(self) -> None:
+    def init_stage2_model(self, cldm, diffusion) -> None:
         ### load uent, vae, clip
-        self.cldm: ControlLDM = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/cldm.yaml"))
-        sd = load_model_from_url(MODELS["sd_v21"])
-        unused = self.cldm.load_pretrained_sd(sd)
-        print(f"strictly load pretrained sd_v2.1, unused weights: {unused}")
-        ### load controlnet
-        if self.args.version == "v1":
-            if self.args.task == "fr":
-                control_sd = load_model_from_url(MODELS["v1_face"])
-            elif self.args.task == "sr":
-                control_sd = load_model_from_url(MODELS["v1_general"])
-            else:
-                raise ValueError(f"DiffBIR v1 doesn't support task: {self.args.task}, please use v2 by passsing '--version v2'")
-        else:
-            control_sd = load_model_from_url(MODELS["v2"])
-        self.cldm.load_controlnet_from_ckpt(control_sd)
-        print(f"strictly load controlnet weight")
-        self.cldm.eval().to(self.args.device)
-        ### load diffusion
-        self.diffusion: Diffusion = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/diffusion.yaml"))
-        self.diffusion.to(self.args.device)
+        # self.cldm: ControlLDM = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/cldm.yaml"))
+        # sd = load_model_from_url(MODELS["sd_v21"])
+        # unused = self.cldm.load_pretrained_sd(sd)
+        # print(f"strictly load pretrained sd_v2.1, unused weights: {unused}")
+        # ### load controlnet
+        # if self.args.version == "v1":
+        #     if self.args.task == "fr":
+        #         control_sd = load_model_from_url(MODELS["v1_face"])
+        #     elif self.args.task == "sr":
+        #         control_sd = load_model_from_url(MODELS["v1_general"])
+        #     else:
+        #         raise ValueError(f"DiffBIR v1 doesn't support task: {self.args.task}, please use v2 by passsing '--version v2'")
+        # else:
+        #     control_sd = load_model_from_url(MODELS["v2"])
+        # self.cldm.load_controlnet_from_ckpt(control_sd)
+        # print(f"strictly load controlnet weight")
+        # self.cldm.eval().to(self.args.device)
+        # ### load diffusion
+        # self.diffusion: Diffusion = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/diffusion.yaml"))
+        # self.diffusion.to(self.args.device)
+
+        self.cldm = cldm
+        self.diffusion = diffusion
 
     def init_cond_fn(self) -> None:
         if not self.args.guidance:
@@ -101,37 +104,6 @@ class InferenceLoop:
     @overload
     def init_pipeline(self) -> None:
         ...
-
-    def setup(self) -> None:
-        self.output_dir = self.args.output
-        os.makedirs(self.output_dir, exist_ok=True)
-
-    def lq_loader(self) -> Generator[np.ndarray, None, None]:
-        img_exts = [".png", ".jpg", ".jpeg"]
-        if os.path.isdir(self.args.input):
-            file_names = sorted([
-                file_name for file_name in os.listdir(self.args.input) if os.path.splitext(file_name)[-1] in img_exts
-            ])
-            file_paths = [os.path.join(self.args.input, file_name) for file_name in file_names]
-        else:
-            assert os.path.splitext(self.args.input)[-1] in img_exts
-            file_paths = [self.args.input]
-
-        def _loader() -> Generator[np.ndarray, None, None]:
-            for file_path in file_paths:
-                ### load lq
-                lq = np.array(Image.open(file_path).convert("RGB"))
-                print(f"load lq: {file_path}")
-                ### set context for saving results
-                self.loop_ctx["file_stem"] = os.path.splitext(os.path.basename(file_path))[0]
-                for i in range(self.args.n_samples):
-                    self.loop_ctx["repeat_idx"] = i
-                    yield lq
-
-        return _loader
-
-    def after_load_lq(self, lq: np.ndarray) -> np.ndarray:
-        return lq
 
     @torch.no_grad()
     def run(self) -> None:
