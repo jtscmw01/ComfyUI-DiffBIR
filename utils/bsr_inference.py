@@ -140,7 +140,7 @@ class InferenceLoop:
         # loader = self.lq_loader()
         loader = [self.args.input]
         print(loader)
-        for lq in loader():
+        for lq in loader:
             lq = self.after_load_lq(lq)
             sample = self.pipeline.run(
                 lq[None], self.args.steps, 1.0, self.args.tiled,
