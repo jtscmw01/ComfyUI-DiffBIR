@@ -135,9 +135,9 @@ class InferenceLoop:
 
     @torch.no_grad()
     def run(self) -> None:
-        self.setup()
+        # self.setup()
         # We don't support batch processing since input images may have different size
-        loader = self.lq_loader()
+        # loader = self.lq_loader()
         loader = [self.args.input]
         print(loader)
         for lq in loader():
