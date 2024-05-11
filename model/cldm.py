@@ -3,7 +3,7 @@ from typing import Tuple, Set, List, Dict
 import torch
 from torch import nn
 
-from ..model import (
+from model import (
     ControlledUnetModel, ControlNet,
     AutoencoderKL, FrozenOpenCLIPEmbedder
 )
