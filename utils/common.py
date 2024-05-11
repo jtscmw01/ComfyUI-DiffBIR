@@ -12,11 +12,9 @@ from torch.hub import download_url_to_file, get_dir
 
 def get_obj_from_str(string: str, reload: bool=False) -> Any:
     module, cls = string.rsplit(".", 1)
-    print(module, cls)
     if reload:
         module_imp = importlib.import_module(module)
         importlib.reload(module_imp)
-    print('dasdsadasdsadasda', module)
     return getattr(importlib.import_module(module, package=None), cls)
 
 

@@ -62,7 +62,7 @@ class InferenceLoop:
     @count_vram_usage
     def init_stage2_model(self) -> None:
         ### load uent, vae, clip
-        self.cldm: ControlLDM = instantiate_from_config(OmegaConf.load("configs/inference/cldm.yaml"))
+        self.cldm: ControlLDM = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/cldm.yaml"))
         sd = load_model_from_url(MODELS["sd_v21"])
         unused = self.cldm.load_pretrained_sd(sd)
         print(f"strictly load pretrained sd_v2.1, unused weights: {unused}")
@@ -80,7 +80,7 @@ class InferenceLoop:
         print(f"strictly load controlnet weight")
         self.cldm.eval().to(self.args.device)
         ### load diffusion
-        self.diffusion: Diffusion = instantiate_from_config(OmegaConf.load("configs/inference/diffusion.yaml"))
+        self.diffusion: Diffusion = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/diffusion.yaml"))
         self.diffusion.to(self.args.device)
 
     def init_cond_fn(self) -> None:
