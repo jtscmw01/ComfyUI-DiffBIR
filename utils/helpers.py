@@ -140,7 +140,8 @@ class Pipeline:
         better_start: bool
     ) -> np.ndarray:
         # image to tensor
-        lq = torch.tensor((lq / 255.).clip(0, 1), dtype=torch.float32, device=self.device)
+        # lq = torch.tensor((lq / 255.).clip(0, 1), dtype=torch.float32, device=self.device)
+
         lq = rearrange(lq, "n h w c -> n c h w").contiguous()
         # set pipeline output size
         import time
