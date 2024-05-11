@@ -116,6 +116,6 @@ class DiffBIR_sample:
             device=device
         )
         print(args)
-        image = BSRInferenceLoop(args).run()
+        # image = BSRInferenceLoop(args).run()
         
         return (image,)
