@@ -4,7 +4,7 @@ import numpy as np
 
 import argparse
 
-from .utils.bsr_inference import BSRInferenceLoop
+from ...utils.bsr_inference import BSRInferenceLoop
 
 def check_device(device: str) -> str:
     if device == "cuda":
