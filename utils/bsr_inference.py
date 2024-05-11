@@ -151,7 +151,7 @@ class InferenceLoop:
             print(f'sample shape {sample.shape}')
             # image = Image.fromarray(sample)
             # print(f'result shape {sample.shape}')
-            return sample
+            return sample.unsqueeze(0)
             # image = self.save(sample)
 
     def save(self, sample: np.ndarray) -> None:

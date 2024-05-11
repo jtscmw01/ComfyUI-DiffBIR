@@ -169,7 +169,7 @@ class Pipeline:
         # resize to desired output size
         sample = F.interpolate(sample, size=self.final_size, mode="bicubic", antialias=True)
         # tensor to image
-        sample = rearrange(sample.unsqueeze(0), "n c h w -> n h w c")
+        sample = rearrange(sample, "n c h w -> n h w c")
         # sample = sample.contiguous().clamp(0, 255).to(torch.uint8).cpu().numpy()
         # t_e = time.time()
         # print(f'postprocess time: {t_e - t_s}')
