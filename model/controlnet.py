@@ -9,8 +9,8 @@ from model.util import (
     timestep_embedding,
     exists
 )
-from model.attention import SpatialTransformer
-from model.unet import (
+from ..model.attention import SpatialTransformer
+from ..model.unet import (
     TimestepEmbedSequential, ResBlock, Downsample, AttentionBlock, UNetModel
 )
 
