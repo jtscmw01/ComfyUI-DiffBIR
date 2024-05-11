@@ -2,7 +2,7 @@ from typing import List
 import torch
 import torch.nn as nn
 from torch.utils.checkpoint import checkpoint
-from model.open_clip import CLIP, tokenize
+from ..model.open_clip import CLIP, tokenize
 
 ### pretrained model path
 # _VITH14 = dict(

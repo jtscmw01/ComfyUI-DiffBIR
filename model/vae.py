@@ -6,8 +6,8 @@ import numpy as np
 from einops import rearrange
 from typing import Optional, Any
 
-from model.distributions import DiagonalGaussianDistribution
-from model.config import Config, AttnMode
+from ..model.distributions import DiagonalGaussianDistribution
+from ..model.config import Config, AttnMode
 
 
 def nonlinearity(x):

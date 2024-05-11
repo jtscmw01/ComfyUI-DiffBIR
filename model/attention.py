@@ -5,10 +5,10 @@ from torch import nn, einsum
 from einops import rearrange, repeat
 from typing import Optional, Any
 
-from model.util import (
+from ..model.util import (
     checkpoint, zero_module, exists, default
 )
-from model.config import Config, AttnMode
+from ..model.config import Config, AttnMode
 
 
 # CrossAttn precision handling
