@@ -89,6 +89,7 @@ class DiffBIR_sample:
     def sample(self, image, upscale_ratio, steps, cfg, better_start, tiled, tile_size, tile_stride, pos_prompt, neg_prompt, 
                seed, device, guidance, g_loss, g_scale, g_start, g_stop, g_space, g_repeat):
         device = check_device(device)
+        print(image.shape)
         # 创建一个Namespace对象
         args = argparse.Namespace(
             task='sr',
