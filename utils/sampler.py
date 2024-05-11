@@ -5,10 +5,10 @@ from torch import nn
 import numpy as np
 from tqdm import tqdm
 
-from model.gaussian_diffusion import extract_into_tensor
-from model.cldm import ControlLDM
-from utils.cond_fn import Guidance
-from utils.common import sliding_windows, gaussian_weights
+from ..model.gaussian_diffusion import extract_into_tensor
+from ..model.cldm import ControlLDM
+from ..utils.cond_fn import Guidance
+from ..utils.common import sliding_windows, gaussian_weights
 
 
 # https://github.com/openai/guided-diffusion/blob/main/guided_diffusion/respace.py
