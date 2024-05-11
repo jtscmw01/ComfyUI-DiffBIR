@@ -16,6 +16,7 @@ def get_obj_from_str(string: str, reload: bool=False) -> Any:
     if reload:
         module_imp = importlib.import_module(module)
         importlib.reload(module_imp)
+        
     return getattr(importlib.import_module(module, package=None), cls)
 
 
