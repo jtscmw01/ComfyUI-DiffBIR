@@ -2,6 +2,30 @@ import cv2
 import torch
 import numpy as np
 
+import argparse
+
+from utils.bsr_inference import BSRInferenceLoop
+
+def check_device(device: str) -> str:
+    if device == "cuda":
+        if not torch.cuda.is_available():
+            print("CUDA not available because the current PyTorch install was not "
+                  "built with CUDA enabled.")
+            device = "cpu"
+    else:
+        if device == "mps":
+            if not torch.backends.mps.is_available():
+                if not torch.backends.mps.is_built():
+                    print("MPS not available because the current PyTorch install was not "
+                          "built with MPS enabled.")
+                    device = "cpu"
+                else:
+                    print("MPS not available because the current MacOS version is not 12.3+ "
+                          "and/or you do not have an MPS-enabled device on this machine.")
+                    device = "cpu"
+    print(f"using device {device}")
+    return device
+
 
 
 class DiffBIR_sample:
@@ -15,6 +39,7 @@ class DiffBIR_sample:
             "image": ("IMAGE",),
             "upscale_ratio": ("FLOAT", {"default": 2, "min": 0.1, "max": 8.0, "step": 0.1}),
             "steps": ("INT", {"default": 20, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
+            "cfg": ("FLOAT", {"default": 4.0, "min": 0, "max": 100, "step": 0.1}),
             "better_start": ("BOOLEAN", {"default": True}),
             "tiled": ("BOOLEAN", {"default": True}),
             "tile_size": ("INT", {"default": 512, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
@@ -61,7 +86,36 @@ class DiffBIR_sample:
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def sample(self, image, upscale_ratio, steps, better_start, tiled, tile_size, tile_stride, pos_prompt, neg_prompt, 
+    def sample(self, image, upscale_ratio, steps, cfg, better_start, tiled, tile_size, tile_stride, pos_prompt, neg_prompt, 
                seed, device, guidance, g_loss, g_scale, g_start, g_stop, g_space, g_repeat):
+        device = check_device(device)
+        # 创建一个Namespace对象
+        args = argparse.Namespace(
+            task='sr',
+            upscale=upscale_ratio,
+            version='v2',
+            steps=steps,
+            better_start=better_start,
+            tiled=tiled,
+            tile_size=tile_size,
+            tile_stride=tile_stride,
+            pos_prompt=pos_prompt,
+            neg_prompt=neg_prompt,
+            cfg_scale=cfg,
+            input=image,
+            n_samples=1,
+            guidance=guidance,
+            g_loss=g_loss,
+            g_scale=g_scale,
+            g_start=g_start,
+            g_stop=g_stop,
+            g_space=g_space,
+            g_repeat=g_repeat,
+            output='',
+            seed=seed,
+            device=device
+        )
+        print(args)
+        image = BSRInferenceLoop(args).run()
         
         return (image,)
