@@ -166,7 +166,7 @@ class BSRInferenceLoop(InferenceLoop):
 
     @count_vram_usage
     def init_stage1_model(self) -> None:
-        self.bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load("../configs/inference/bsrnet.yaml"))
+        self.bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/bsrnet.yaml"))
         sd = load_model_from_url(MODELS["bsrnet"])
         self.bsrnet.load_state_dict(sd, strict=True)
         self.bsrnet.eval().to(self.args.device)
