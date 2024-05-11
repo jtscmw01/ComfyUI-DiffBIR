@@ -51,7 +51,7 @@ class InferenceLoop:
         self.loop_ctx = {}
         self.pipeline: Pipeline = None
         self.init_stage1_model()
-        self.init_stage2_model()
+        # self.init_stage2_model()
         self.init_cond_fn()
         self.init_pipeline()
 
