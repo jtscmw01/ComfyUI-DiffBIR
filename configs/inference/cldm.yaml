@@ -1,4 +1,4 @@
-target: model.ControlLDM
+target: ComfyUI-DiffBIR.model.ControlLDM
 params:
   latent_scale_factor: 0.18215
   unet_cfg:
