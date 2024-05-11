@@ -138,7 +138,7 @@ class InferenceLoop:
         # self.setup()
         # We don't support batch processing since input images may have different size
         # loader = self.lq_loader()
-        loader = [self.args.input]
+        loader = [self.args.input[0]]
         print(loader[0].shape)
         for lq in loader:
             lq = self.after_load_lq(lq)
@@ -148,8 +148,10 @@ class InferenceLoop:
                 self.args.pos_prompt, self.args.neg_prompt, self.args.cfg_scale,
                 self.args.better_start
             )[0]
-            image = Image.fromarray(sample)
-            return image
+            print(f'sample shape {sample.shape}')
+            # image = Image.fromarray(sample)
+            # print(f'result shape {sample.shape}')
+            return sample
             # image = self.save(sample)
 
     def save(self, sample: np.ndarray) -> None:
