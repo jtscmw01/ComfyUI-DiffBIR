@@ -7,7 +7,7 @@ from model import (
     ControlledUnetModel, ControlNet,
     AutoencoderKL, FrozenOpenCLIPEmbedder
 )
-from utils.common import sliding_windows, count_vram_usage, gaussian_weights
+from ..utils.common import sliding_windows, count_vram_usage, gaussian_weights
 
 
 def disabled_train(self: nn.Module) -> nn.Module:
