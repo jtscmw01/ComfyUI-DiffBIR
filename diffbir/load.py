@@ -34,7 +34,7 @@ def load_model_from_url(url: str) -> Dict[str, torch.Tensor]:
     return sd
 
 
-class DiffBIR_Load:
+class DiffBIR_load:
 
     def __init__(self):
         pass
