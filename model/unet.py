@@ -16,7 +16,7 @@ from ..model.util import (
     timestep_embedding,
     exists
 )
-from model.attention import SpatialTransformer
+from ..model.attention import SpatialTransformer
 
 
 class TimestepBlock(nn.Module):
