@@ -46,12 +46,12 @@ def load_model_from_url(url: str) -> Dict[str, torch.Tensor]:
 
 class InferenceLoop:
 
-    def __init__(self, args: Namespace) -> "InferenceLoop":
+    def __init__(self, args: Namespace, cldm, diffusion) -> "InferenceLoop":
         self.args = args
         self.loop_ctx = {}
         self.pipeline: Pipeline = None
         self.init_stage1_model()
-        # self.init_stage2_model()
+        self.init_stage2_model(cldm, diffusion)
         self.init_cond_fn()
         self.init_pipeline()
 
