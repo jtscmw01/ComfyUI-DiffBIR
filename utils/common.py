@@ -9,10 +9,11 @@ from torch.nn import functional as F
 import numpy as np
 
 from torch.hub import download_url_to_file, get_dir
-
+from ..model import load_state
 
 def get_obj_from_str(string: str, reload: bool=False) -> Any:
     module, cls = string.rsplit(".", 1)
+    print(module, cls)
     if reload:
         module_imp = importlib.import_module(module)
         importlib.reload(module_imp)
