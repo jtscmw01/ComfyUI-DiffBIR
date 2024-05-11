@@ -138,7 +138,7 @@ class InferenceLoop:
         # self.setup()
         # We don't support batch processing since input images may have different size
         # loader = self.lq_loader()
-        loader = [self.args.input]
+        loader = [self.args.input[0]]
         print(loader[0].shape)
         for lq in loader:
             lq = self.after_load_lq(lq)

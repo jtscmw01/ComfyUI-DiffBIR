@@ -55,7 +55,7 @@ class Pipeline:
         self.final_size: Tuple[int] = None
 
     def set_final_size(self, lq: torch.Tensor) -> None:
-        h, w = lq.shape[2:]
+        h, w = lq.shape[1:3]
         self.final_size = (h, w)
 
     @overload
