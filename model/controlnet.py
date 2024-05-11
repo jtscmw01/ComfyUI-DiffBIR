@@ -2,7 +2,7 @@ import torch
 import torch as th
 import torch.nn as nn
 
-from model.util import (
+from ..model.util import (
     conv_nd,
     linear,
     zero_module,
