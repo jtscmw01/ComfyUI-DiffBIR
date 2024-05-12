@@ -36,7 +36,7 @@ class DiffBIR_sample:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {
-            "stage1 model": ("STAGE1",),
+            "stage1_model": ("STAGE1",),
             "cldm": ("CLDM",),
             "diffusion": ("DIFFUSION",),
             "image": ("IMAGE",),
@@ -89,7 +89,7 @@ class DiffBIR_sample:
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def sample(self, cldm, diffusion, image, upscale_ratio, steps, cfg, better_start, tiled, tile_size, tile_stride, pos_prompt, neg_prompt, 
+    def sample(self, stage1_model, cldm, diffusion, image, upscale_ratio, steps, cfg, better_start, tiled, tile_size, tile_stride, pos_prompt, neg_prompt, 
                seed, device, guidance, g_loss, g_scale, g_start, g_stop, g_space, g_repeat):
         device = check_device(device)
         print(image.shape)
@@ -120,7 +120,7 @@ class DiffBIR_sample:
             device=device
         )
         print(args)
-        pipe = BSRInferenceLoop(args, cldm, diffusion)
+        pipe = BSRInferenceLoop(args, stage1_model, cldm, diffusion)
         # pipe.init_stage2_model(cldm, diffusion)
         image = pipe.run()
         
