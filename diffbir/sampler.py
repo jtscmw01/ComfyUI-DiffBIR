@@ -47,6 +47,9 @@ class DiffBIR_sample:
             "tiled": ("BOOLEAN", {"default": True}),
             "tile_size": ("INT", {"default": 512, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
             "tile_stride": ("INT", {"default": 256, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
+            "stage1_tile": ("BOOLEAN", {"default": True}),
+            "stage1_tile_size": ("INT", {"default": 512, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
+            "stage1_tile_stride": ("INT", {"default": 256, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
             "pos_prompt": ("STRING", {"multiline": True, "dynamicPrompts": True}),
             "neg_prompt": ("STRING", {"multiline": True, "dynamicPrompts": True}),
             "seed": ("INT", {"default": 123, "min": 0, "max": 0xffffffffffffffff, "step": 1}),
@@ -89,7 +92,7 @@ class DiffBIR_sample:
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def sample(self, stage1_model, cldm, diffusion, image, upscale_ratio, steps, cfg, better_start, tiled, tile_size, tile_stride, pos_prompt, neg_prompt, 
+    def sample(self, stage1_model, cldm, diffusion, image, upscale_ratio, steps, cfg, better_start, tiled, tile_size, tile_stride, stage1_tile, stage1_tile_size, stage1_tile_stride, pos_prompt, neg_prompt, 
                seed, device, guidance, g_loss, g_scale, g_start, g_stop, g_space, g_repeat):
         device = check_device(device)
         print(image.shape)
@@ -103,6 +106,9 @@ class DiffBIR_sample:
             tiled=tiled,
             tile_size=tile_size,
             tile_stride=tile_stride,
+            stage1_tile=stage1_tile,
+            stage1_tile_size=stage1_tile_size,
+            stage1_tile_stride=stage1_tile_stride,
             pos_prompt=pos_prompt,
             neg_prompt=neg_prompt,
             cfg_scale=cfg,
@@ -124,7 +130,7 @@ class DiffBIR_sample:
         pipe.init_stage1_model(stage1_model)
         pipe.init_stage2_model(cldm, diffusion)
         pipe.init_pipeline()
-        
+
         image = pipe.run()
         
         return (image,)

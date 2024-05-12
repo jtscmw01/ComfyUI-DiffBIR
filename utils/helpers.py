@@ -1,4 +1,5 @@
 from typing import overload, Tuple, Optional
+import time
 
 import torch
 from torch import nn
@@ -134,6 +135,9 @@ class Pipeline:
         tiled: bool,
         tile_size: int,
         tile_stride: int,
+        stage1_tile: bool,
+        stage1_tile_size: int,
+        stage1_tile_stride: int,
         pos_prompt: str,
         neg_prompt: str,
         cfg_scale: float,
@@ -144,12 +148,9 @@ class Pipeline:
         lq = torch.tensor(lq, dtype=torch.float32, device=self.device)
         lq = rearrange(lq, "n h w c -> n c h w").contiguous()
         # set pipeline output size
-        import time
+        
         t_s = time.time()
         self.set_final_size(lq)
-        t_e = time.time()
-        print(f'init time: {t_e - t_s}')
-        t_s = time.time()
         clean = self.run_stage1(lq)
         t_e = time.time()
         print(f'stage1 time: {t_e - t_s}')
@@ -162,7 +163,6 @@ class Pipeline:
         t_e = time.time()
         print(f'stage2 time: {t_e - t_s}')
 
-        t_s = time.time()
         # colorfix (borrowed from StableSR, thanks for their work)
         sample = (sample + 1) / 2
         sample = wavelet_reconstruction(sample, clean)
@@ -171,8 +171,7 @@ class Pipeline:
         # tensor to image
         sample = rearrange(sample, "n c h w -> n h w c")
         # sample = sample.contiguous().clamp(0, 255).to(torch.uint8).cpu().numpy()
-        # t_e = time.time()
-        # print(f'postprocess time: {t_e - t_s}')
+
         return sample
 
 
@@ -188,9 +187,8 @@ class BSRNetPipeline(Pipeline):
 
     def tile_process(self, lq, tile_size, tile_stride):
         _, c, h, w = lq.size()
-        self.scale = 4
-        scaled_h = h * self.scale
-        scaled_w = w * self.scale
+        scaled_h = h * self.upscale
+        scaled_w = w * self.upscale
         
         # Initialize output with zeros
         output = torch.zeros((1, c, scaled_h, scaled_w), dtype=lq.dtype, device=lq.device)
@@ -203,17 +201,14 @@ class BSRNetPipeline(Pipeline):
                 # Upscale tile using stage1_model
                 scaled_tile = self.stage1_model(tile)
                 # Place scaled tile in output
-                output[:, :, y*self.scale:y*self.scale+tile_size*self.scale, 
-                    x*self.scale:x*self.scale+tile_size*self.scale] = scaled_tile
+                output[:, :, y*self.upscale:y*self.upscale+tile_size*self.upscale, 
+                    x*self.upscale:x*self.upscalee+tile_size*self.upscale] = scaled_tile
         
         return output
 
     @count_vram_usage
-    def run_stage1(self, lq: torch.Tensor) -> torch.Tensor:
+    def run_stage1(self, lq: torch.Tensor, stage1_tile, tile_size=512, tile_stride=256) -> torch.Tensor:
         # NOTE: default upscale 4x in stage1
-        tile_size = 512
-        tile_stride = 448
-        stage1_tile = True
         if stage1_tile:
             clean = self.tile_process(lq, tile_size, tile_stride)
         else:

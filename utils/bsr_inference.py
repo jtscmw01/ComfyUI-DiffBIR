@@ -85,7 +85,8 @@ class InferenceLoop:
         for lq in loader:
             sample = self.pipeline.run(
                 lq[None], self.args.steps, 1.0, self.args.tiled,
-                self.args.tile_size, self.args.tile_stride,
+                self.args.tile_size, self.args.tile_stride, self.args.stage1_tile, 
+                self.args.stage1_tile_size, self.args.stage1_tile_stride
                 self.args.pos_prompt, self.args.neg_prompt, self.args.cfg_scale,
                 self.args.better_start
             )[0]
