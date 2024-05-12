@@ -1,14 +1,14 @@
 # ComfyUI-DiffBIR
 TODO:
-- [x] repo create 5.10
-- [x] sampler 5.11
-- [x] stage2 load 5.11
-- [x] stage1 load 5.12
-- [x] stage1 tile  5.12
-- [x] simple load 5.12
-- [x] sampler update 5.12
-- [x] sampler advanced 5.12
-- [ ] readme update 5.13
+- **2024.05.10** ✅ repo create
+- **2024.05.11** ✅ sampler
+- **2024.05.11** stage2 load
+- **2024.05.12** stage1 load
+- **2024.05.12** stage1 tile
+- **2024.05.12** simple load
+- **2024.05.12** sampler update
+- **2024.05.12** sampler advanced
+- **2024.05.13** readme update 5.13
 - [ ] multi images support
 - [ ] basic sr workflow
 - [ ] fr support
