@@ -180,6 +180,7 @@ class BSRNetPipeline(Pipeline):
     def __init__(self, bsrnet: RRDBNet, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str, upscale: float) -> None:
         super().__init__(bsrnet, cldm, diffusion, cond_fn, device)
         self.upscale = upscale
+        self.stage1_scale = 4
 
     def set_final_size(self, lq: torch.Tensor) -> None:
         h, w = lq.shape[2:]
@@ -187,8 +188,8 @@ class BSRNetPipeline(Pipeline):
 
     def tile_process(self, lq, tile_size, tile_stride):
         _, c, h, w = lq.size()
-        scaled_h = int(h * self.upscale)
-        scaled_w = int(w * self.upscale)
+        scaled_h = int(h * self.stage1_scale)
+        scaled_w = int(w * self.stage1_scale)
         
         # Initialize output with zeros
         output = torch.zeros((1, c, scaled_h, scaled_w), dtype=lq.dtype, device=lq.device)
@@ -201,8 +202,8 @@ class BSRNetPipeline(Pipeline):
                 # Upscale tile using stage1_model
                 scaled_tile = self.stage1_model(tile)
                 # Place scaled tile in output
-                output[:, :, int(y*self.upscale):int(y*self.upscale)+int(tile_size*self.upscale), 
-                    int(x*self.upscale):int(x*self.upscale)+int(tile_size*self.upscale)] = scaled_tile
+                output[:, :, int(y*self.stage1_scale):int(y*self.stage1_scale)+int(tile_size*self.stage1_scale), 
+                    int(x*self.stage1_scale):int(x*self.stage1_scale)+int(tile_size*self.stage1_scale)] = scaled_tile
         
         return output
 
