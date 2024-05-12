@@ -107,3 +107,49 @@ class Stage1_load:
         bsrnet.eval().to(device)
 
         return (bsrnet,)
+    
+
+class Simple_load:
+
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+            "device": (
+                    [
+                        'cuda',
+                        'cpu',
+                    ], {
+                        "default": 'cuda'
+                    }),
+
+            }
+        }
+
+    RETURN_TYPES = ("STAGE1", "CLDM", "DIFFUSION")
+    RETURN_NAMES = ("stage1_model", "cldm", "diffusion")
+    FUNCTION = "simple_load"
+    CATEGORY = "DiffBIR"
+    DESCRIPTION = """"""
+
+    def simple_load(self, device):
+        bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/bsrnet.yaml"))
+        sd = load_model_from_url(MODELS["bsrnet"])
+        bsrnet.load_state_dict(sd, strict=True)
+        bsrnet.eval().to(device)
+
+        cldm: ControlLDM = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/cldm.yaml"))
+        sd = load_model_from_url(MODELS["sd_v21"])
+        unused = cldm.load_pretrained_sd(sd)
+        print(f"strictly load pretrained sd_v2.1, unused weights: {unused}")
+        ### load controlnet
+        control_sd = load_model_from_url(MODELS["v2"])
+
+        cldm.load_controlnet_from_ckpt(control_sd)
+        cldm.eval().to(device)
+        diffusion: Diffusion = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/diffusion.yaml"))
+        diffusion.to(device)
+
+        return (bsrnet, cldm, diffusion)
