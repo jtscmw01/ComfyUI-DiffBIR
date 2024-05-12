@@ -1,8 +1,6 @@
-import cv2
-import torch
-import numpy as np
-
 import argparse
+
+import torch
 
 from ..utils.bsr_inference import BSRInferenceLoop
 
@@ -96,7 +94,7 @@ class DiffBIR_sample_advanced:
                seed, device, guidance, g_loss, g_scale, g_start, g_stop, g_space, g_repeat):
         device = check_device(device)
         print(image.shape)
-        # 创建一个Namespace对象
+
         args = argparse.Namespace(
             task='sr',
             upscale=upscale_ratio,
@@ -126,7 +124,7 @@ class DiffBIR_sample_advanced:
             device=device
         )
 
-        pipe = BSRInferenceLoop(args)#, stage1_model, cldm, diffusion)
+        pipe = BSRInferenceLoop(args)
         pipe.init_stage1_model(stage1_model)
         pipe.init_stage2_model(cldm, diffusion)
         pipe.init_pipeline()
@@ -186,7 +184,6 @@ class DiffBIR_sample:
         if image.shape[1] * image.shape[2] > 768 * 1024:
             stage1_tile = True
 
-        # 创建一个Namespace对象
         args = argparse.Namespace(
             task='sr',
             upscale=upscale_ratio,
@@ -216,7 +213,7 @@ class DiffBIR_sample:
             device=device
         )
 
-        pipe = BSRInferenceLoop(args)#, stage1_model, cldm, diffusion)
+        pipe = BSRInferenceLoop(args)
         pipe.init_stage1_model(stage1_model)
         pipe.init_stage2_model(cldm, diffusion)
         pipe.init_pipeline()

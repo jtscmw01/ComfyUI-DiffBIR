@@ -11,7 +11,6 @@ from ..utils.common import instantiate_from_config, load_file_from_url, count_vr
 MODELS = {
     ### stage_1 model weights
     "bsrnet": "https://github.com/cszn/KAIR/releases/download/v1.0/BSRNet.pth",
-    # the following checkpoint is up-to-date, but we use the old version in our paper
     # "swinir_face": "https://github.com/zsyOAOA/DifFace/releases/download/V1.0/General_Face_ffhq512.pth",
     "swinir_face": "https://huggingface.co/lxq007/DiffBIR/resolve/main/face_swinir_v1.ckpt",
     "scunet_psnr": "https://github.com/cszn/KAIR/releases/download/v1.0/scunet_color_real_psnr.pth",
