@@ -102,8 +102,8 @@ class Stage1_load:
             }
         }
 
-    RETURN_TYPES = ("STAGE1", "SS")
-    RETURN_NAMES = ("stage1 model","ss")
+    RETURN_TYPES = ("STAGE1",)
+    RETURN_NAMES = ("stage1 model",)
     FUNCTION = "init_stage1"
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
@@ -114,4 +114,4 @@ class Stage1_load:
         bsrnet.load_state_dict(sd, strict=True)
         bsrnet.eval().to(device)
 
-        return bsrnet
+        return (bsrnet,)
