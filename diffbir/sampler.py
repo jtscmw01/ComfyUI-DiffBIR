@@ -119,9 +119,11 @@ class DiffBIR_sample:
             seed=seed,
             device=device
         )
-        print(args)
-        pipe = BSRInferenceLoop(args, stage1_model, cldm, diffusion)
-        # pipe.init_stage2_model(cldm, diffusion)
+
+        pipe = BSRInferenceLoop(args)#, stage1_model, cldm, diffusion)
+        pipe.init_stage1_model(stage1_model)
+        pipe.init_stage2_model(cldm, diffusion)
+
         image = pipe.run()
         
         return (image,)

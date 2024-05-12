@@ -65,14 +65,6 @@ class Stage2_load:
         unused = cldm.load_pretrained_sd(sd)
         print(f"strictly load pretrained sd_v2.1, unused weights: {unused}")
         ### load controlnet
-        # if args.version == "v1":
-        #     if args.task == "fr":
-        #         control_sd = load_model_from_url(MODELS["v1_face"])
-        #     elif args.task == "sr":
-        #         control_sd = load_model_from_url(MODELS["v1_general"])
-        #     else:
-        #         raise ValueError(f"DiffBIR v1 doesn't support task: {args.task}, please use v2 by passsing '--version v2'")
-        # else:
         control_sd = load_model_from_url(MODELS["v2"])
 
         cldm.load_controlnet_from_ckpt(control_sd)

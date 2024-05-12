@@ -46,12 +46,12 @@ def load_model_from_url(url: str) -> Dict[str, torch.Tensor]:
 
 class InferenceLoop:
 
-    def __init__(self, args: Namespace, stage1_model, cldm, diffusion) -> "InferenceLoop":
+    def __init__(self, args: Namespace) -> "InferenceLoop":
         self.args = args
         self.loop_ctx = {}
         self.pipeline: Pipeline = None
-        self.init_stage1_model(stage1_model)
-        self.init_stage2_model(cldm, diffusion)
+        # self.init_stage1_model(stage1_model)
+        # self.init_stage2_model(cldm, diffusion)
         self.init_cond_fn()
         self.init_pipeline()
 
@@ -61,28 +61,6 @@ class InferenceLoop:
 
     @count_vram_usage
     def init_stage2_model(self, cldm, diffusion) -> None:
-        ### load uent, vae, clip
-        # self.cldm: ControlLDM = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/cldm.yaml"))
-        # sd = load_model_from_url(MODELS["sd_v21"])
-        # unused = self.cldm.load_pretrained_sd(sd)
-        # print(f"strictly load pretrained sd_v2.1, unused weights: {unused}")
-        # ### load controlnet
-        # if self.args.version == "v1":
-        #     if self.args.task == "fr":
-        #         control_sd = load_model_from_url(MODELS["v1_face"])
-        #     elif self.args.task == "sr":
-        #         control_sd = load_model_from_url(MODELS["v1_general"])
-        #     else:
-        #         raise ValueError(f"DiffBIR v1 doesn't support task: {self.args.task}, please use v2 by passsing '--version v2'")
-        # else:
-        #     control_sd = load_model_from_url(MODELS["v2"])
-        # self.cldm.load_controlnet_from_ckpt(control_sd)
-        # print(f"strictly load controlnet weight")
-        # self.cldm.eval().to(self.args.device)
-        # ### load diffusion
-        # self.diffusion: Diffusion = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/diffusion.yaml"))
-        # self.diffusion.to(self.args.device)
-
         self.cldm = cldm
         self.diffusion = diffusion
 
@@ -107,9 +85,7 @@ class InferenceLoop:
 
     @torch.no_grad()
     def run(self) -> None:
-        # self.setup()
         # We don't support batch processing since input images may have different size
-        # loader = self.lq_loader()
         loader = [self.args.input[0]]
         print(loader[0].shape)
         for lq in loader:
@@ -119,17 +95,8 @@ class InferenceLoop:
                 self.args.pos_prompt, self.args.neg_prompt, self.args.cfg_scale,
                 self.args.better_start
             )[0]
-            print(f'sample shape {sample.shape}')
+            
             return sample.unsqueeze(0)
-
-    def save(self, sample: np.ndarray) -> None:
-        file_stem, repeat_idx = self.loop_ctx["file_stem"], self.loop_ctx["repeat_idx"]
-        file_name = f"{file_stem}_{repeat_idx}.png" if self.args.n_samples > 1 else f"{file_stem}.png"
-        save_path = os.path.join(self.args.output, file_name)
-        image = Image.fromarray(sample)
-        return image
-        # Image.fromarray(sample).save(save_path)
-        # print(f"save result to {save_path}")
 
 
 class BSRInferenceLoop(InferenceLoop):
