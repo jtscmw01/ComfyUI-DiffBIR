@@ -201,8 +201,8 @@ class BSRNetPipeline(Pipeline):
                 # Upscale tile using stage1_model
                 scaled_tile = self.stage1_model(tile)
                 # Place scaled tile in output
-                output[:, :, y*self.upscale:y*self.upscale+tile_size*self.upscale, 
-                    x*self.upscale:x*self.upscalee+tile_size*self.upscale] = scaled_tile
+                output[:, :, int(y*self.upscale):int(y*self.upscale)+int(tile_size*self.upscale), 
+                    int(x*self.upscale):int(x*self.upscale)+int(tile_size*self.upscale)] = scaled_tile
         
         return output
 
