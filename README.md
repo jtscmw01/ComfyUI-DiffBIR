@@ -8,7 +8,7 @@ TODO:
 - **2024.05.12** ✅ simple load implement
 - **2024.05.12** ✅ sampler update
 - **2024.05.12** ✅ sampler advanced
-- **2024.05.13** readme update 5.13
+- **2024.05.13** readme update
 - [ ] multi images support
 - [ ] basic sr workflow
 - [ ] fr support
