@@ -190,6 +190,7 @@ class BSRNetPipeline(Pipeline):
         _, c, h, w = lq.size()
         scaled_h = h * self.scale
         scaled_w = w * self.scale
+        self.scale = 4
         # Initialize output with zeros
         output = torch.zeros((1, c, scaled_h, scaled_w), dtype=lq.dtype, device=lq.device)
         
