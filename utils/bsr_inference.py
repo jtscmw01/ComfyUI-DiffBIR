@@ -53,7 +53,7 @@ class InferenceLoop:
         # self.init_stage1_model(stage1_model)
         # self.init_stage2_model(cldm, diffusion)
         self.init_cond_fn()
-        self.init_pipeline()
+        # self.init_pipeline()
 
     @overload
     def init_stage1_model(self) -> None:

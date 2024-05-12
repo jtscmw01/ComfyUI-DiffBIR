@@ -123,7 +123,8 @@ class DiffBIR_sample:
         pipe = BSRInferenceLoop(args)#, stage1_model, cldm, diffusion)
         pipe.init_stage1_model(stage1_model)
         pipe.init_stage2_model(cldm, diffusion)
-
+        pipe.init_pipeline()
+        
         image = pipe.run()
         
         return (image,)
