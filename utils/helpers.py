@@ -151,7 +151,7 @@ class Pipeline:
         
         t_s = time.time()
         self.set_final_size(lq)
-        clean = self.run_stage1(lq)
+        clean = self.run_stage1(lq, stage1_tile, stage1_tile_size, stage1_tile_stride)
         t_e = time.time()
         print(f'stage1 time: {t_e - t_s}')
 
