@@ -46,11 +46,11 @@ def load_model_from_url(url: str) -> Dict[str, torch.Tensor]:
 
 class InferenceLoop:
 
-    def __init__(self, args: Namespace, cldm, diffusion) -> "InferenceLoop":
+    def __init__(self, args: Namespace, stage1_model, cldm, diffusion) -> "InferenceLoop":
         self.args = args
         self.loop_ctx = {}
         self.pipeline: Pipeline = None
-        self.init_stage1_model()
+        self.init_stage1_model(stage1_model)
         self.init_stage2_model(cldm, diffusion)
         self.init_cond_fn()
         self.init_pipeline()
@@ -113,7 +113,6 @@ class InferenceLoop:
         loader = [self.args.input[0]]
         print(loader[0].shape)
         for lq in loader:
-            lq = self.after_load_lq(lq)
             sample = self.pipeline.run(
                 lq[None], self.args.steps, 1.0, self.args.tiled,
                 self.args.tile_size, self.args.tile_stride,
@@ -121,10 +120,7 @@ class InferenceLoop:
                 self.args.better_start
             )[0]
             print(f'sample shape {sample.shape}')
-            # image = Image.fromarray(sample)
-            # print(f'result shape {sample.shape}')
             return sample.unsqueeze(0)
-            # image = self.save(sample)
 
     def save(self, sample: np.ndarray) -> None:
         file_stem, repeat_idx = self.loop_ctx["file_stem"], self.loop_ctx["repeat_idx"]
@@ -139,11 +135,8 @@ class InferenceLoop:
 class BSRInferenceLoop(InferenceLoop):
 
     @count_vram_usage
-    def init_stage1_model(self) -> None:
-        self.bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/bsrnet.yaml"))
-        sd = load_model_from_url(MODELS["bsrnet"])
-        self.bsrnet.load_state_dict(sd, strict=True)
-        self.bsrnet.eval().to(self.args.device)
+    def init_stage1_model(self, stage1_model) -> None:
+        self.bsrnet = stage1_model
 
     def init_pipeline(self) -> None:
         self.pipeline = BSRNetPipeline(self.bsrnet, self.cldm, self.diffusion, self.cond_fn, self.args.device, self.args.upscale)

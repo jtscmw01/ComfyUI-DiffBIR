@@ -34,7 +34,7 @@ def load_model_from_url(url: str) -> Dict[str, torch.Tensor]:
     return sd
 
 
-class DiffBIR_load:
+class Stage2_load:
 
     def __init__(self):
         pass
@@ -81,3 +81,37 @@ class DiffBIR_load:
         diffusion.to(device)
 
         return cldm, diffusion
+    
+
+class Stage1_load:
+
+    def __init__(self):
+        pass
+    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+            "device": (
+                    [
+                        'cuda',
+                        'cpu',
+                    ], {
+                        "default": 'cuda'
+                    }),
+
+            }
+        }
+
+    RETURN_TYPES = ("STAGE1")
+    RETURN_NAMES = ("stage1 model")
+    FUNCTION = "init_stage1"
+    CATEGORY = "DiffBIR"
+    DESCRIPTION = """"""
+
+    def init_stage1(self, device):
+        bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/bsrnet.yaml"))
+        sd = load_model_from_url(MODELS["bsrnet"])
+        bsrnet.load_state_dict(sd, strict=True)
+        bsrnet.eval().to(device)
+
+        return bsrnet

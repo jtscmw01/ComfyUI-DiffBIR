@@ -36,6 +36,7 @@ class DiffBIR_sample:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {
+            "stage1 model": ("STAGE1",),
             "cldm": ("CLDM",),
             "diffusion": ("DIFFUSION",),
             "image": ("IMAGE",),
