@@ -7,10 +7,7 @@ import torch
 from PIL import Image
 from omegaconf import OmegaConf
 
-from ..model.cldm import ControlLDM
-from ..model.gaussian_diffusion import Diffusion
-from ..model.bsrnet import RRDBNet
-from ..utils.common import instantiate_from_config, load_file_from_url, count_vram_usage
+from ..utils.common import load_file_from_url, count_vram_usage
 from ..utils.helpers import (
     Pipeline,
     BSRNetPipeline
@@ -50,10 +47,7 @@ class InferenceLoop:
         self.args = args
         self.loop_ctx = {}
         self.pipeline: Pipeline = None
-        # self.init_stage1_model(stage1_model)
-        # self.init_stage2_model(cldm, diffusion)
         self.init_cond_fn()
-        # self.init_pipeline()
 
     @overload
     def init_stage1_model(self) -> None:
@@ -87,7 +81,7 @@ class InferenceLoop:
     def run(self) -> None:
         # We don't support batch processing since input images may have different size
         loader = [self.args.input[0]]
-        print(loader[0].shape)
+
         for lq in loader:
             sample = self.pipeline.run(
                 lq[None], self.args.steps, 1.0, self.args.tiled,
@@ -95,7 +89,7 @@ class InferenceLoop:
                 self.args.pos_prompt, self.args.neg_prompt, self.args.cfg_scale,
                 self.args.better_start
             )[0]
-            
+            print(sample.shape)
             return sample.unsqueeze(0)
 
 

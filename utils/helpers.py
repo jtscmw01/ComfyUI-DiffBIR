@@ -186,13 +186,37 @@ class BSRNetPipeline(Pipeline):
         h, w = lq.shape[2:]
         self.final_size = (int(h * self.upscale), int(w * self.upscale))
 
+    def tile_process(self, lq, tile_size, tile_stride):
+        _, c, h, w = lq.size()
+        scaled_h = h * self.scale
+        scaled_w = w * self.scale
+        # Initialize output with zeros
+        output = torch.zeros((1, c, scaled_h, scaled_w), dtype=lq.dtype, device=lq.device)
+        
+        # Iterate over tiles
+        for y in range(0, h, tile_stride):
+            for x in range(0, w, tile_stride):
+                # Extract tile
+                tile = lq[:, :, y:y+tile_size, x:x+tile_size]
+                # Upscale tile using stage1_model
+                scaled_tile = self.stage1_model(tile)
+                # Place scaled tile in output
+                output[:, :, y*self.scale:y*self.scale+tile_size*self.scale, 
+                    x*self.scale:x*self.scale+tile_size*self.scale] = scaled_tile
+        
+        return output
+
     @count_vram_usage
     def run_stage1(self, lq: torch.Tensor) -> torch.Tensor:
-        # NOTE: upscale is always set to 4 in our experiments
-        clean = self.stage1_model(lq)
-        # clean = lq
-        # print('1212121')
-        # if self.final_size[0] < 512 and self.final_size[1] < 512:
+        # NOTE: default upscale 4x in stage1
+        tile_size = 512
+        tile_stride = 448
+        stage1_tile = True
+        if stage1_tile:
+            clean = self.tile_process(lq, tile_size, tile_stride)
+        else:
+            clean = self.stage1_model(lq)
+
         if min(self.final_size) < 512:
             clean = resize_short_edge_to(clean, size=512)
         else:
