@@ -103,7 +103,7 @@ class Stage1_load:
         }
 
     RETURN_TYPES = ("STAGE1",)
-    RETURN_NAMES = ("stage1 model",)
+    RETURN_NAMES = ("stage1_model",)
     FUNCTION = "init_stage1"
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
