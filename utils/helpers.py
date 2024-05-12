@@ -187,8 +187,8 @@ class BSRNetPipeline(Pipeline):
 
     def tile_process(self, lq, tile_size, tile_stride):
         _, c, h, w = lq.size()
-        scaled_h = h * self.upscale
-        scaled_w = w * self.upscale
+        scaled_h = int(h * self.upscale)
+        scaled_w = int(w * self.upscale)
         
         # Initialize output with zeros
         output = torch.zeros((1, c, scaled_h, scaled_w), dtype=lq.dtype, device=lq.device)
