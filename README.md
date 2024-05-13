@@ -18,10 +18,11 @@ TODO:
 - [ ] bfr support
 - [ ] dn support
 
+# Visual Results
 
 # Installing
 ### Step 1: clone the repo and install the dependencies
-`git clone https://github.com/ComfyUI/ComfyUI-DiffBIR`
+`git clone https://github.com/ComfyUI/ComfyUI-DiffBIR` \n
 `pip install -r requirements.txt`
 
 ### Step 2: download the pretrained model
