@@ -1,5 +1,7 @@
 # ComfyUI DiffBIR
 
+Comfyui-DiffBIR is a comfyui implementation of offical DiffBIR. 
+
 TODO:
 - **2024.05.10** ✅ repo create
 - **2024.05.11** ✅ sampler implement
@@ -15,3 +17,13 @@ TODO:
 - [ ] fr support
 - [ ] bfr support
 - [ ] dn support
+
+
+# Installing
+### Step 1: clone the repo and install the dependencies
+`git clone https://github.com/ComfyUI/ComfyUI-DiffBIR`
+`pip install -r requirements.txt`
+
+### Step 2: download the pretrained model
+
+# Workflows
