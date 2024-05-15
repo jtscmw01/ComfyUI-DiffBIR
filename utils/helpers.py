@@ -227,16 +227,12 @@ class BSRNetPipeline(Pipeline):
                 # Determine the region of output to blend the tile
                 y_start = int(y * self.stage1_scale)
                 x_start = int(x * self.stage1_scale)
-                y_end = y_start + int(tile_size * self.stage1_scale)
-                x_end = x_start + int(tile_size * self.stage1_scale)
+                y_end = y_start + scaled_tile.size(2)  # Use the actual size of scaled_tile
+                x_end = x_start + scaled_tile.size(3)  # Use the actual size of scaled_tile
                 
                 # Compute the weights for blending
-                y_weights = torch.linspace(0, 1, tile_stride * self.stage1_scale, device=lq.device)
-                x_weights = torch.linspace(0, 1, tile_stride * self.stage1_scale, device=lq.device)
-                
-                # Extend weights to match tile dimensions
-                y_weights = torch.cat((y_weights, torch.ones(int(tile_size * self.stage1_scale) - len(y_weights), device=lq.device)))
-                x_weights = torch.cat((x_weights, torch.ones(int(tile_size * self.stage1_scale) - len(x_weights), device=lq.device)))
+                y_weights = torch.linspace(0, 1, scaled_tile.size(2), device=lq.device)
+                x_weights = torch.linspace(0, 1, scaled_tile.size(3), device=lq.device)
                 
                 # Create a weight grid
                 weight_grid = y_weights[:, None] * x_weights[None, :]
@@ -250,6 +246,7 @@ class BSRNetPipeline(Pipeline):
         output /= weight_map
         
         return output
+
 
 
 
