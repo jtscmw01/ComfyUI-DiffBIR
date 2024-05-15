@@ -186,26 +186,67 @@ class BSRNetPipeline(Pipeline):
         h, w = lq.shape[2:]
         self.final_size = (int(h * self.upscale), int(w * self.upscale))
 
+    # def tile_process(self, lq, tile_size, tile_stride):
+    #     _, c, h, w = lq.size()
+    #     scaled_h = int(h * self.stage1_scale)
+    #     scaled_w = int(w * self.stage1_scale)
+        
+    #     # Initialize output with zeros
+    #     output = torch.zeros((1, c, scaled_h, scaled_w), dtype=lq.dtype, device=lq.device)
+        
+    #     # Iterate over tiles
+    #     for y in range(0, h, tile_stride):
+    #         for x in range(0, w, tile_stride):
+    #             # Extract tile
+    #             tile = lq[:, :, y:y+tile_size, x:x+tile_size]
+    #             # Upscale tile using stage1_model
+    #             scaled_tile = self.stage1_model(tile)
+    #             # Place scaled tile in output
+    #             output[:, :, int(y*self.stage1_scale):int(y*self.stage1_scale)+int(tile_size*self.stage1_scale), 
+    #                 int(x*self.stage1_scale):int(x*self.stage1_scale)+int(tile_size*self.stage1_scale)] = scaled_tile
+        
+    #     return output
+    
     def tile_process(self, lq, tile_size, tile_stride):
         _, c, h, w = lq.size()
         scaled_h = int(h * self.stage1_scale)
         scaled_w = int(w * self.stage1_scale)
         
-        # Initialize output with zeros
+        # Initialize output and weight tensors
         output = torch.zeros((1, c, scaled_h, scaled_w), dtype=lq.dtype, device=lq.device)
+        weight_map = torch.zeros((1, 1, scaled_h, scaled_w), dtype=lq.dtype, device=lq.device)
         
-        # Iterate over tiles
+        # Iterate over tiles with overlap
         for y in range(0, h, tile_stride):
             for x in range(0, w, tile_stride):
                 # Extract tile
                 tile = lq[:, :, y:y+tile_size, x:x+tile_size]
                 # Upscale tile using stage1_model
                 scaled_tile = self.stage1_model(tile)
-                # Place scaled tile in output
-                output[:, :, int(y*self.stage1_scale):int(y*self.stage1_scale)+int(tile_size*self.stage1_scale), 
-                    int(x*self.stage1_scale):int(x*self.stage1_scale)+int(tile_size*self.stage1_scale)] = scaled_tile
+                
+                # Determine the region of output to blend the tile
+                y_start = int(y * self.stage1_scale)
+                x_start = int(x * self.stage1_scale)
+                y_end = y_start + int(tile_size * self.stage1_scale)
+                x_end = x_start + int(tile_size * self.stage1_scale)
+                
+                # Compute the weights for blending
+                tile_weight = torch.ones_like(scaled_tile)
+                y_weights = torch.linspace(0, 1, tile_stride * self.stage1_scale, device=lq.device)
+                x_weights = torch.linspace(0, 1, tile_stride * self.stage1_scale, device=lq.device)
+                y_weights = torch.cat((y_weights, torch.ones(int(tile_size * self.stage1_scale) - len(y_weights), device=lq.device)))
+                x_weights = torch.cat((x_weights, torch.ones(int(tile_size * self.stage1_scale) - len(x_weights), device=lq.device)))
+                tile_weight = tile_weight * y_weights[:, None] * x_weights[None, :]
+                
+                # Blend the scaled tile into the output
+                output[:, :, y_start:y_end, x_start:x_end] += scaled_tile * tile_weight
+                weight_map[:, :, y_start:y_end, x_start:x_end] += tile_weight
+        
+        # Normalize the output by the weight map
+        output /= weight_map
         
         return output
+
 
     @count_vram_usage
     def run_stage1(self, lq: torch.Tensor, stage1_tile, tile_size=512, tile_stride=256) -> torch.Tensor:
