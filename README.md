@@ -23,7 +23,7 @@ TODO:
 
 # Visual Results
 Blind Image Super-Resolution
-![1_lq](./asset/bsr/1_lq.png) ![1_hq](./asset/bsr/1_hq.png)
+![1_lq](./asset/bsr/1_lq.jpg) ![1_hq](./asset/bsr/1_hq.png)
 
 
 # Installing
