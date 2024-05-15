@@ -216,7 +216,7 @@ class BSRNetPipeline(Pipeline):
         device = model_management.get_torch_device()
 
         memory_required = model_management.module_size(upscale_model)
-        memory_required += (512 * 512 * 3) * image.element_size() * max(upscale_model.scale, 1.0) * 384.0 #The 384.0 is an estimate of how much some of these models take, TODO: make it more accurate
+        memory_required += (512 * 512 * 3) * image.element_size() * max(self.stage1_scale, 1.0) * 384.0 #The 384.0 is an estimate of how much some of these models take, TODO: make it more accurate
         memory_required += image.nelement() * image.element_size()
         model_management.free_memory(memory_required, device)
 
