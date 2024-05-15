@@ -231,12 +231,16 @@ class BSRNetPipeline(Pipeline):
                 x_end = x_start + int(tile_size * self.stage1_scale)
                 
                 # Compute the weights for blending
-                tile_weight = torch.ones_like(scaled_tile)
                 y_weights = torch.linspace(0, 1, tile_stride * self.stage1_scale, device=lq.device)
                 x_weights = torch.linspace(0, 1, tile_stride * self.stage1_scale, device=lq.device)
+                
+                # Extend weights to match tile dimensions
                 y_weights = torch.cat((y_weights, torch.ones(int(tile_size * self.stage1_scale) - len(y_weights), device=lq.device)))
                 x_weights = torch.cat((x_weights, torch.ones(int(tile_size * self.stage1_scale) - len(x_weights), device=lq.device)))
-                tile_weight = tile_weight * y_weights[:, None, None] * x_weights[None, :, None]
+                
+                # Create a weight grid
+                weight_grid = y_weights[:, None] * x_weights[None, :]
+                tile_weight = weight_grid.unsqueeze(0).unsqueeze(0).expand(1, c, -1, -1)
                 
                 # Blend the scaled tile into the output
                 output[:, :, y_start:y_end, x_start:x_end] += scaled_tile * tile_weight
@@ -246,6 +250,7 @@ class BSRNetPipeline(Pipeline):
         output /= weight_map
         
         return output
+
 
 
     @count_vram_usage
