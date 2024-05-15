@@ -252,8 +252,8 @@ class BSRNetPipeline(Pipeline):
 
         upscale_model.cpu()
         s = torch.clamp(s, min=0, max=1.0)
-        print('s shape', s.shape)
-        return (s,)
+
+        return s
 
 
 
