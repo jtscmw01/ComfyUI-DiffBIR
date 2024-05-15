@@ -22,7 +22,7 @@ TODO:
 
 # Installing
 ### Step 1: clone the repo and install the dependencies
-`git clone https://github.com/ComfyUI/ComfyUI-DiffBIR` \n
+`git clone https://github.com/ComfyUI/ComfyUI-DiffBIR`  
 `pip install -r requirements.txt`
 
 ### Step 2: download the pretrained model
