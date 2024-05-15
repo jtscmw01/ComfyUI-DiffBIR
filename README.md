@@ -22,6 +22,9 @@ TODO:
 - [ ] dn support
 
 # Visual Results
+Blind Image Super-Resolution
+![1_lq](./asset/1_lq.png) ![1_hq](./asset/1_hq.png)
+
 
 # Installing
 ### Step 1: clone the repo and install the dependencies
