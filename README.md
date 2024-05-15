@@ -31,6 +31,7 @@ TODO:
 
 # Installing
 ### Step 1: clone the repo and install the dependencies
+`cd custom_nodes`  
 `git clone https://github.com/ComfyUI/ComfyUI-DiffBIR`  
 `pip install -r requirements.txt`
 
