@@ -13,12 +13,12 @@ TODO:
 - **2024.05.12** ✅ simple load implement
 - **2024.05.12** ✅ sampler update
 - **2024.05.12** ✅ sampler advanced
-- **2024.05.13** readme update
-- [ ] multi images support
-- [ ] basic sr workflow
+- **2024.05.14** ✅ readme update
+- **2024.05.14** ✅ basic sr workflow
 - [ ] fr support
 - [ ] bfr support
 - [ ] dn support
+- [ ] multi images support
 
 # Visual Results
 ## Blind Image Super-Resolution
