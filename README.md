@@ -1,6 +1,9 @@
 # ComfyUI DiffBIR
+---
 
 Comfyui-DiffBIR is a comfyui implementation of offical DiffBIR. 
+
+---
 
 TODO:
 - **2024.05.10** ✅ repo create
@@ -26,5 +29,10 @@ TODO:
 `pip install -r requirements.txt`
 
 ### Step 2: download the pretrained model
+| model  | download link                                                | Baidu Netdisk link |
+|--------|--------------------------------------------------------------|--------------------|
+| v2.pth | https://huggingface.co/lxq007/DiffBIR-v2/resolve/main/v2.pth |                    |
+|        |                                                              |                    |
+|        |                                                              |                    |
 
 # Workflows
