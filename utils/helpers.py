@@ -1,3 +1,12 @@
+import sys
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+grandparent_dir = os.path.dirname(parent_dir)
+great_grandparent_dir = os.path.dirname(grandparent_dir)
+sys.path.append(great_grandparent_dir)
+
 from typing import overload, Tuple, Optional
 import time
 
@@ -8,7 +17,10 @@ import numpy as np
 from PIL import Image
 from einops import rearrange
 
+
+import comfy
 from comfy import model_management
+
 from ..model.cldm import ControlLDM
 from ..model.gaussian_diffusion import Diffusion
 from ..model.bsrnet import RRDBNet
@@ -231,7 +243,7 @@ class BSRNetPipeline(Pipeline):
             try:
                 steps = in_img.shape[0] * comfy.utils.get_tiled_scale_steps(in_img.shape[3], in_img.shape[2], tile_x=tile, tile_y=tile, overlap=overlap)
                 pbar = comfy.utils.ProgressBar(steps)
-                s = comfy.utils.tiled_scale(in_img, lambda a: upscale_model(a), tile_x=tile, tile_y=tile, overlap=overlap, upscale_amount=upscale_model.scale, pbar=pbar)
+                s = comfy.utils.tiled_scale(in_img, lambda a: upscale_model(a), tile_x=tile, tile_y=tile, overlap=overlap, upscale_amount=self.stage1_scale, pbar=pbar)
                 oom = False
             except model_management.OOM_EXCEPTION as e:
                 tile //= 2
