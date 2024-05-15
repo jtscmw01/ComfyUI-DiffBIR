@@ -29,10 +29,14 @@ TODO:
 `pip install -r requirements.txt`
 
 ### Step 2: download the pretrained model
-| model  | download link                                                | Baidu Netdisk link |
-|--------|--------------------------------------------------------------|--------------------|
-| v2.pth | https://huggingface.co/lxq007/DiffBIR-v2/resolve/main/v2.pth |                    |
-|        |                                                              |                    |
-|        |                                                              |                    |
+
+|      model     |                                                 download link                                                | Baidu Netdisk |
+|:--------------:|:------------------------------------------------------------------------------------------------------------:|---------------|
+|     bsrnet     | [BSRNet.pth](https://github.com/cszn/KAIR/releases/download/v1.0/BSRNet.pth)                                 |               |
+|   swinir_face  | [face_swinir_v1.ckpt](https://huggingface.co/lxq007/DiffBIR/resolve/main/face_swinir_v1.ckpt)                |               |
+|   scunet_psnr  | [scunet_color_real_psnr.pth](https://github.com/cszn/KAIR/releases/download/v1.0/scunet_color_real_psnr.pth) |               |
+| swinir_general | [general_swinir_v1.ckpt](https://huggingface.co/lxq007/DiffBIR/resolve/main/general_swinir_v1.ckpt)          |               |
+|       v2       | [v2.pth](https://huggingface.co/lxq007/DiffBIR-v2/resolve/main/v2.pth)                                       |               |
+|     sd_v21     | [sd_v21](https://huggingface.co/stabilityai/stable-diffusion-2-1-base/resolve/main/v2-1_512-ema-pruned.ckpt) |               |
 
 # Workflows
