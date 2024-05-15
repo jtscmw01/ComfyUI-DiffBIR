@@ -1,5 +1,4 @@
 # ComfyUI DiffBIR
----
 
 Comfyui-DiffBIR is a comfyui implementation of offical DiffBIR. 
 
@@ -22,7 +21,7 @@ TODO:
 - [ ] dn support
 
 # Visual Results
-Blind Image Super-Resolution
+## Blind Image Super-Resolution
 |        low resolution image       |       super resolution image      |
 |:---------------------------------:|:---------------------------------:|
 |   ![2_lq](./asset/bsr/2_lq.jpg )  | ![ 2_hq ]( ./asset/bsr/2_hq.png ) |
@@ -48,3 +47,6 @@ put the model into `Comfyui/models/diffbir/`
 
 
 # Workflows
+|          task          |                              workflow                             |
+|:----------------------:|:-----------------------------------------------------------------:|
+| blind super-resolution | ![  bsr_workflow.json  ](  example_workflows/bsr_workflow.json  ) |
