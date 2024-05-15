@@ -233,7 +233,7 @@ class BSRNetPipeline(Pipeline):
         model_management.free_memory(memory_required, device)
 
         upscale_model.to(device)
-        in_img = image.movedim(-1,-3).to(device)
+        in_img = image.to(device)
 
         tile = tile_size
         overlap = tile_size - tile_stride
