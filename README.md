@@ -31,9 +31,11 @@ TODO:
 
 # Installing
 ### Step 1: clone the repo and install the dependencies
-`cd custom_nodes`  
-`git clone https://github.com/ComfyUI/ComfyUI-DiffBIR`  
-`pip install -r requirements.txt`
+To install ComfyUI-DiffBIR in addition to an existing installation of ComfyUI, you can follow the following steps:
+1. `cd custom_nodes`  
+2. `git clone https://github.com/ComfyUI/ComfyUI-DiffBIR`  
+3. `pip install -r requirements.txt`
+4. Restart ComfyUI
 
 ### Step 2: download the pretrained model
 put the model into `Comfyui/models/diffbir/`
