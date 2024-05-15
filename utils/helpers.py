@@ -250,7 +250,7 @@ class BSRNetPipeline(Pipeline):
                 if tile < 128:
                     raise e
 
-        upscale_model.cpu()
+        # upscale_model.cpu()
         s = torch.clamp(s, min=0, max=1.0)
 
         return s
