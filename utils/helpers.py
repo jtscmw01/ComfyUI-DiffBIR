@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image
 from einops import rearrange
 
+from comfy import model_management
 from ..model.cldm import ControlLDM
 from ..model.gaussian_diffusion import Diffusion
 from ..model.bsrnet import RRDBNet
@@ -207,46 +208,39 @@ class BSRNetPipeline(Pipeline):
         
     #     return output
     
-    def tile_process(self, lq, tile_size, tile_stride):
-        _, c, h, w = lq.size()
-        scaled_h = int(h * self.stage1_scale)
-        scaled_w = int(w * self.stage1_scale)
-        
-        # Initialize output and weight tensors
-        output = torch.zeros((1, c, scaled_h, scaled_w), dtype=lq.dtype, device=lq.device)
-        weight_map = torch.zeros((1, c, scaled_h, scaled_w), dtype=lq.dtype, device=lq.device)
-        
-        # Iterate over tiles with overlap
-        for y in range(0, h, tile_stride):
-            for x in range(0, w, tile_stride):
-                # Extract tile
-                tile = lq[:, :, y:y+tile_size, x:x+tile_size]
-                # Upscale tile using stage1_model
-                scaled_tile = self.stage1_model(tile)
-                
-                # Determine the region of output to blend the tile
-                y_start = int(y * self.stage1_scale)
-                x_start = int(x * self.stage1_scale)
-                y_end = y_start + scaled_tile.size(2)  # Use the actual size of scaled_tile
-                x_end = x_start + scaled_tile.size(3)  # Use the actual size of scaled_tile
-                
-                # Compute the weights for blending
-                y_weights = torch.linspace(0, 1, scaled_tile.size(2), device=lq.device)
-                x_weights = torch.linspace(0, 1, scaled_tile.size(3), device=lq.device)
-                
-                # Create a weight grid
-                weight_grid = y_weights[:, None] * x_weights[None, :]
-                tile_weight = weight_grid.unsqueeze(0).unsqueeze(0).expand(1, c, -1, -1)
-                
-                # Blend the scaled tile into the output
-                output[:, :, y_start:y_end, x_start:x_end] += scaled_tile * tile_weight
-                weight_map[:, :, y_start:y_end, x_start:x_end] += tile_weight
-        
-        # Normalize the output by the weight map
-        output /= weight_map
-        
-        return output
 
+
+
+    def tile_process(self, image, tile_size, tile_stride, upscale_model):
+        print('imggg shaoe', image.shape)
+        device = model_management.get_torch_device()
+
+        memory_required = model_management.module_size(upscale_model)
+        memory_required += (512 * 512 * 3) * image.element_size() * max(upscale_model.scale, 1.0) * 384.0 #The 384.0 is an estimate of how much some of these models take, TODO: make it more accurate
+        memory_required += image.nelement() * image.element_size()
+        model_management.free_memory(memory_required, device)
+
+        upscale_model.to(device)
+        in_img = image.movedim(-1,-3).to(device)
+
+        tile = tile_size
+        overlap = tile_size - tile_stride
+
+        oom = True
+        while oom:
+            try:
+                steps = in_img.shape[0] * comfy.utils.get_tiled_scale_steps(in_img.shape[3], in_img.shape[2], tile_x=tile, tile_y=tile, overlap=overlap)
+                pbar = comfy.utils.ProgressBar(steps)
+                s = comfy.utils.tiled_scale(in_img, lambda a: upscale_model(a), tile_x=tile, tile_y=tile, overlap=overlap, upscale_amount=upscale_model.scale, pbar=pbar)
+                oom = False
+            except model_management.OOM_EXCEPTION as e:
+                tile //= 2
+                if tile < 128:
+                    raise e
+
+        upscale_model.cpu()
+        s = torch.clamp(s.movedim(-3,-1), min=0, max=1.0)
+        return (s,)
 
 
 
@@ -254,7 +248,7 @@ class BSRNetPipeline(Pipeline):
     def run_stage1(self, lq: torch.Tensor, stage1_tile, tile_size=512, tile_stride=256) -> torch.Tensor:
         # NOTE: default upscale 4x in stage1
         if stage1_tile:
-            clean = self.tile_process(lq, tile_size, tile_stride)
+            clean = self.tile_process(lq, tile_size, tile_stride, self.stage1_model)
         else:
             clean = self.stage1_model(lq)
 
