@@ -252,6 +252,7 @@ class BSRNetPipeline(Pipeline):
 
         upscale_model.cpu()
         s = torch.clamp(s, min=0, max=1.0)
+        print('s shape', s.shape)
         return (s,)
 
 
@@ -263,6 +264,8 @@ class BSRNetPipeline(Pipeline):
             clean = self.tile_process(lq, tile_size, tile_stride, self.stage1_model)
         else:
             clean = self.stage1_model(lq)
+
+        print(clean.shape)
 
         if min(self.final_size) < 512:
             clean = resize_short_edge_to(clean, size=512)
