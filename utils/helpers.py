@@ -224,7 +224,8 @@ class BSRNetPipeline(Pipeline):
 
 
     def tile_process(self, image, tile_size, tile_stride, upscale_model):
-        print('imggg shaoe', image.shape，image.type())
+        print('imggg shaoe', image.shape)
+        print('image type', image.type())
         device = model_management.get_torch_device()
 
         memory_required = model_management.module_size(upscale_model)
