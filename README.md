@@ -23,8 +23,10 @@ TODO:
 
 # Visual Results
 Blind Image Super-Resolution
-![1_lq](./asset/bsr/1_lq.jpg) ![1_hq](./asset/bsr/1_hq.png)
-
+|        low resolution image       |       super resolution image      |
+|:---------------------------------:|:---------------------------------:|
+|   ![1_hq](./asset/bsr/1_hq.png)   | ![ 1_hq ]( ./asset/bsr/1_hq.png ) |
+| ![ 2_lq ]( ./asset/bsr/2_lq.jpg ) | ![ 1_hq ]( ./asset/bsr/2_hq.png ) |
 
 # Installing
 ### Step 1: clone the repo and install the dependencies
