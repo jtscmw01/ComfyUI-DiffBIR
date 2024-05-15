@@ -251,7 +251,7 @@ class BSRNetPipeline(Pipeline):
                     raise e
 
         upscale_model.cpu()
-        s = torch.clamp(s.movedim(-3,-1), min=0, max=1.0)
+        s = torch.clamp(s, min=0, max=1.0)
         return (s,)
 
 
