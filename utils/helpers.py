@@ -291,16 +291,19 @@ class SwinIRPipeline(Pipeline):
 
     @count_vram_usage
     def run_stage1(self, lq: torch.Tensor, stage1_tile, tile_size=512, tile_stride=256) -> torch.Tensor:
+        if min(lq.shape[2:]) < 512:
+            lq = resize_short_edge_to(lq, size=512)
+        ori_h, ori_w = lq.shape[2:]
+        # pad: ensure that height & width are multiples of 64
+        pad_lq = pad_to_multiples_of(lq, multiple=64)
+
         # NOTE: default upscale 4x in stage1
         if stage1_tile:
-            clean = self.tile_process(lq, tile_size, tile_stride, self.stage1_model)
+            clean = self.tile_process(pad_lq, tile_size, tile_stride, self.stage1_model)
         else:
-            clean = self.stage1_model(lq)
+            clean = self.stage1_model(pad_lq)
 
-        if min(self.final_size) < 512:
-            clean = resize_short_edge_to(clean, size=512)
-        else:
-            clean = F.interpolate(clean, size=self.final_size, mode="bicubic", antialias=True)
+        clean = clean[:, :, :ori_h, :ori_w]
 
         return clean
 
@@ -358,7 +361,5 @@ class SCUNetPipeline(Pipeline):
 
         if min(self.final_size) < 512:
             clean = resize_short_edge_to(clean, size=512)
-        else:
-            clean = F.interpolate(clean, size=self.final_size, mode="bicubic", antialias=True)
 
         return clean

@@ -24,10 +24,10 @@ TODO:
 ## Blind Image Super-Resolution
 |        low resolution image       |       super resolution image      |
 |:---------------------------------:|:---------------------------------:|
-|   ![2_lq](./asset/bsr/2_lq.jpg )  | ![ 2_hq ]( ./asset/bsr/2_hq.png ) |
-|   ![1_lq](./asset/bsr/1_lq.jpg)   | ![ 1_hq ]( ./asset/bsr/1_hq.png ) |
-|   ![3_lq](./asset/bsr/3_lq.png)   | ![ 3_hq ]( ./asset/bsr/3_hq.png ) |
-|   ![4_lq](./asset/bsr/4_lq.jpeg)  | ![ 4_hq ]( ./asset/bsr/4_hq.png ) |
+|   ![2_lq](./assets/bsr/2_lq.jpg ) | ![ 2_hq ]( ./assets/bsr/2_hq.png )|
+|   ![1_lq](./assets/bsr/1_lq.jpg)  | ![ 1_hq ]( ./assets/bsr/1_hq.png )|
+|   ![3_lq](./assets/bsr/3_lq.png)  | ![ 3_hq ]( ./assets/bsr/3_hq.png )|
+|   ![4_lq](./assets/bsr/4_lq.jpeg) | ![ 4_hq ]( ./assets/bsr/4_hq.png )|
 
 # Installing
 ### Step 1: clone the repo and install the dependencies
