@@ -2,7 +2,7 @@ import argparse
 
 import torch
 
-from ..utils.bsr_inference import BSRInferenceLoop
+from ..utils.sr_inference import BSRInferenceLoop, BFRInferenceLoop, BIDInferenceLoop
 
 def check_device(device: str) -> str:
     if device == "cuda":
@@ -38,6 +38,14 @@ class DiffBIR_sample_advanced:
             "cldm": ("CLDM",),
             "diffusion": ("DIFFUSION",),
             "image": ("IMAGE",),
+            "task": (
+                    [
+                        'bsr',
+                        'bfr',
+                        'bid',
+                    ], {
+                        "default": 'bsr'
+                    }),
             "upscale_ratio": ("FLOAT", {"default": 2, "min": 0.1, "max": 8.0, "step": 0.1}),
             "steps": ("INT", {"default": 20, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
             "cfg": ("FLOAT", {"default": 4.0, "min": 0, "max": 100, "step": 0.1}),
@@ -90,7 +98,7 @@ class DiffBIR_sample_advanced:
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def sample(self, stage1_model, cldm, diffusion, image, upscale_ratio, steps, cfg, better_start, tiled, tile_size, tile_stride, stage1_tile, stage1_tile_size, stage1_tile_stride, pos_prompt, neg_prompt, 
+    def sample(self, stage1_model, cldm, diffusion, image, task, upscale_ratio, steps, cfg, better_start, tiled, tile_size, tile_stride, stage1_tile, stage1_tile_size, stage1_tile_stride, pos_prompt, neg_prompt, 
                seed, device, guidance, g_loss, g_scale, g_start, g_stop, g_space, g_repeat):
         device = check_device(device)
         print(image.shape)
@@ -124,7 +132,15 @@ class DiffBIR_sample_advanced:
             device=device
         )
 
-        pipe = BSRInferenceLoop(args)
+        if task == 'bsr':
+            pipe = BSRInferenceLoop(args)
+        elif task == 'bfr':
+            pipe = BFRInferenceLoop(args)
+        elif task == 'bid':
+            pipe = BIDInferenceLoop(args)
+        else:
+            raise NotImplementedError(f'task {task} not implemented')
+        
         pipe.init_stage1_model(stage1_model)
         pipe.init_stage2_model(cldm, diffusion)
         pipe.init_pipeline()
@@ -212,7 +228,7 @@ class DiffBIR_sample:
             seed=seed,
             device=device
         )
-
+        
         pipe = BSRInferenceLoop(args)
         pipe.init_stage1_model(stage1_model)
         pipe.init_stage2_model(cldm, diffusion)

@@ -6,6 +6,8 @@ from omegaconf import OmegaConf
 from ..model.cldm import ControlLDM
 from ..model.gaussian_diffusion import Diffusion
 from ..model.bsrnet import RRDBNet
+from ..model.scunet import SCUNet
+from ..model.swinir import SwinIR
 from ..utils.common import instantiate_from_config, load_file_from_url, count_vram_usage
 
 MODELS = {
@@ -82,6 +84,14 @@ class Stage1_load:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {
+            "task": (
+                    [
+                        'bsr',
+                        'bfr',
+                        'bid',
+                    ], {
+                        "default": 'bsr'
+                    }),
             "device": (
                     [
                         'cuda',
@@ -93,19 +103,34 @@ class Stage1_load:
             }
         }
 
-    RETURN_TYPES = ("STAGE1",)
-    RETURN_NAMES = ("stage1_model",)
+    RETURN_TYPES = ("STAGE1", "TASK")
+    RETURN_NAMES = ("stage1_model", "task")
     FUNCTION = "init_stage1"
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def init_stage1(self, device):
-        bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/bsrnet.yaml"))
-        sd = load_model_from_url(MODELS["bsrnet"])
-        bsrnet.load_state_dict(sd, strict=True)
-        bsrnet.eval().to(device)
-
-        return (bsrnet,)
+    def init_stage1(self, task, device):
+        if task == 'bsr':
+            bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/bsrnet.yaml"))
+            sd = load_model_from_url(MODELS["bsrnet"])
+            bsrnet.load_state_dict(sd, strict=True)
+            bsrnet.eval().to(device)
+            stage1_model = bsrnet
+        elif task == 'bfr':
+            stage1_model = bsrnet
+            swinir_face: SwinIR = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/swinir.yaml"))
+            sd = load_model_from_url(MODELS["swinir_face"])
+            swinir_face.load_state_dict(sd, strict=True)
+            swinir_face.eval().to(device)
+            stage1_model = swinir_face
+        elif task == 'bid':
+            scunet_psnr: SCUNet = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/scunet.yaml"))
+            sd = load_model_from_url(MODELS["scunet_psnr"])
+            scunet_psnr.load_state_dict(sd, strict=True)
+            scunet_psnr.eval().to(device)
+            stage1_model = scunet_psnr
+        
+        return (stage1_model, task, )
     
 
 class Simple_load:

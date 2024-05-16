@@ -10,7 +10,7 @@ from omegaconf import OmegaConf
 from ..utils.common import load_file_from_url, count_vram_usage
 from ..utils.helpers import (
     Pipeline,
-    BSRNetPipeline
+    BSRNetPipeline, SwinIRPipeline, SCUNetPipeline
 )
 from ..utils.cond_fn import MSEGuidance, WeightedMSEGuidance
 
@@ -102,3 +102,23 @@ class BSRInferenceLoop(InferenceLoop):
 
     def init_pipeline(self) -> None:
         self.pipeline = BSRNetPipeline(self.bsrnet, self.cldm, self.diffusion, self.cond_fn, self.args.device, self.args.upscale)
+
+
+class BFRInferenceLoop(InferenceLoop):
+
+    @count_vram_usage
+    def init_stage1_model(self, stage1_model) -> None:
+        self.swinir_face = stage1_model
+
+    def init_pipeline(self) -> None:
+        self.pipeline = SwinIRPipeline(self.swinir_face, self.cldm, self.diffusion, self.cond_fn, self.args.device)
+
+
+class BIDInferenceLoop(InferenceLoop):
+
+    @count_vram_usage
+    def init_stage1_model(self, stage1_model) -> None:
+        self.scunet_psnr = stage1_model
+
+    def init_pipeline(self) -> None:
+        self.pipeline = SCUNetPipeline(self.scunet_psnr, self.cldm, self.diffusion, self.cond_fn, self.args.device)
