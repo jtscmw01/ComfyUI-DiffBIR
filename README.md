@@ -14,9 +14,10 @@ TODO:
 - **2024.05.12** ✅ sampler update
 - **2024.05.12** ✅ sampler advanced
 - **2024.05.14** ✅ readme update
-- **2024.05.14** ✅ basic sr workflow
+- **2024.05.14** ✅ bsr workflow
 - **2024.05.16** ✅ bfr support
 - **2024.05.16** ✅ bid support
+- **2024.05.16** ✅ bfr and bid workflow
 - [ ] multi images support
 - [ ] stage1 and stage2 sampler split
 
