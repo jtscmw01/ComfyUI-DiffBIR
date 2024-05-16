@@ -117,7 +117,6 @@ class Stage1_load:
             bsrnet.eval().to(device)
             stage1_model = bsrnet
         elif task == 'bfr':
-            stage1_model = bsrnet
             swinir_face: SwinIR = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/swinir.yaml"))
             sd = load_model_from_url(MODELS["swinir_face"])
             swinir_face.load_state_dict(sd, strict=True)
