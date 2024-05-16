@@ -32,7 +32,7 @@ MODELS = {
 
 
 def load_model_from_url(url: str) -> Dict[str, torch.Tensor]:
-    sd_path = load_file_from_url(url, model_dir="models/diffbir")
+    sd_path = load_file_from_url(url, model_dir=os.path.join('models', 'diffbir'))
     sd = torch.load(sd_path, map_location="cpu")
     if "state_dict" in sd:
         sd = sd["state_dict"]

@@ -25,7 +25,6 @@ def check_device(device: str) -> str:
     return device
 
 
-
 class DiffBIR_sample_advanced:
 
     def __init__(self):
@@ -35,10 +34,10 @@ class DiffBIR_sample_advanced:
     def INPUT_TYPES(s):
         return {"required": {
             "stage1_model": ("STAGE1",),
+            "task": ("TASK", ),
             "cldm": ("CLDM",),
             "diffusion": ("DIFFUSION",),
             "image": ("IMAGE",),
-            "task": ("TASK", ),
             "upscale_ratio": ("FLOAT", {"default": 2, "min": 0.1, "max": 8.0, "step": 0.1}),
             "steps": ("INT", {"default": 20, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
             "cfg": ("FLOAT", {"default": 4.0, "min": 0, "max": 100, "step": 0.1}),
@@ -91,7 +90,7 @@ class DiffBIR_sample_advanced:
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def sample(self, stage1_model, cldm, diffusion, image, task, upscale_ratio, steps, cfg, 
+    def sample(self, stage1_model, task, cldm, diffusion, image, upscale_ratio, steps, cfg, 
                better_start, tiled, tile_size, tile_stride, stage1_tile, stage1_tile_size, 
                stage1_tile_stride, pos_prompt, neg_prompt, seed, device, guidance, g_loss, 
                g_scale, g_start, g_stop, g_space, g_repeat):

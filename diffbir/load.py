@@ -1,4 +1,5 @@
 from typing import overload, Generator, Dict
+import os
 
 import torch
 from omegaconf import OmegaConf
@@ -61,7 +62,8 @@ class Stage2_load:
     DESCRIPTION = """"""
 
     def init_stage2(self, device):
-        cldm: ControlLDM = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/cldm.yaml"))
+        config_path = os.path.join("custom_nodes", "ComfyUI-DiffBIR", "configs", "inference", "cldm.yaml")
+        cldm: ControlLDM = instantiate_from_config(OmegaConf.load(config_path))
         sd = load_model_from_url(MODELS["sd_v21"])
         unused = cldm.load_pretrained_sd(sd)
         print(f"strictly load pretrained sd_v2.1, unused weights: {unused}")
@@ -70,7 +72,8 @@ class Stage2_load:
 
         cldm.load_controlnet_from_ckpt(control_sd)
         cldm.eval().to(device)
-        diffusion: Diffusion = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/diffusion.yaml"))
+        config_path = os.path.join("custom_nodes", "ComfyUI-DiffBIR", "configs", "inference", "diffusion.yaml")
+        diffusion: Diffusion = instantiate_from_config(OmegaConf.load(config_path))
         diffusion.to(device)
 
         return cldm, diffusion
@@ -111,19 +114,22 @@ class Stage1_load:
 
     def init_stage1(self, task, device):
         if task == 'bsr':
-            bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/bsrnet.yaml"))
+            config_path = os.path.join("custom_nodes", "ComfyUI-DiffBIR", "configs", "inference", "bsrnet.yaml")
+            bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load(config_path))
             sd = load_model_from_url(MODELS["bsrnet"])
             bsrnet.load_state_dict(sd, strict=True)
             bsrnet.eval().to(device)
             stage1_model = bsrnet
         elif task == 'bfr':
-            swinir_face: SwinIR = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/swinir.yaml"))
+            config_path = os.path.join("custom_nodes", "ComfyUI-DiffBIR", "configs", "inference", "swinir.yaml")
+            swinir_face: SwinIR = instantiate_from_config(OmegaConf.load(config_path))
             sd = load_model_from_url(MODELS["swinir_face"])
             swinir_face.load_state_dict(sd, strict=True)
             swinir_face.eval().to(device)
             stage1_model = swinir_face
         elif task == 'bid':
-            scunet_psnr: SCUNet = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/scunet.yaml"))
+            config_path = os.path.join("custom_nodes", "ComfyUI-DiffBIR", "configs", "inference", "scunet.yaml")
+            scunet_psnr: SCUNet = instantiate_from_config(OmegaConf.load(config_path))
             sd = load_model_from_url(MODELS["scunet_psnr"])
             scunet_psnr.load_state_dict(sd, strict=True)
             scunet_psnr.eval().to(device)
@@ -158,12 +164,14 @@ class Simple_load:
     DESCRIPTION = """"""
 
     def simple_load(self, device):
-        bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/bsrnet.yaml"))
+        config_path = os.path.join("custom_nodes", "ComfyUI-DiffBIR", "configs", "inference", "bsrnet.yaml")
+        bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load(config_path))
         sd = load_model_from_url(MODELS["bsrnet"])
         bsrnet.load_state_dict(sd, strict=True)
         bsrnet.eval().to(device)
 
-        cldm: ControlLDM = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/cldm.yaml"))
+        config_path = os.path.join("custom_nodes", "ComfyUI-DiffBIR", "configs", "inference", "cldm.yaml")
+        cldm: ControlLDM = instantiate_from_config(OmegaConf.load(config_path))
         sd = load_model_from_url(MODELS["sd_v21"])
         unused = cldm.load_pretrained_sd(sd)
         print(f"strictly load pretrained sd_v2.1, unused weights: {unused}")
@@ -172,7 +180,8 @@ class Simple_load:
 
         cldm.load_controlnet_from_ckpt(control_sd)
         cldm.eval().to(device)
-        diffusion: Diffusion = instantiate_from_config(OmegaConf.load("custom_nodes/ComfyUI-DiffBIR/configs/inference/diffusion.yaml"))
+        config_path = os.path.join("custom_nodes", "ComfyUI-DiffBIR", "configs", "inference", "diffusion.yaml")
+        diffusion: Diffusion = instantiate_from_config(OmegaConf.load(config_path))
         diffusion.to(device)
 
         return (bsrnet, cldm, diffusion)

@@ -15,9 +15,8 @@ TODO:
 - **2024.05.12** ✅ sampler advanced
 - **2024.05.14** ✅ readme update
 - **2024.05.14** ✅ basic sr workflow
-- [ ] fr support
-- [ ] bfr support
-- [ ] dn support
+- **2024.05.16** ✅ bfr support
+- **2024.05.16** ✅ bid support
 - [ ] multi images support
 - [ ] stage1 and stage2 sampler split
 
@@ -53,7 +52,6 @@ put the model into `ComfyUI/models/diffbir/`
 # Workflows
 |           task           |                              workflow                             |
 |:------------------------:|:-----------------------------------------------------------------:|
-|  blind super-resolution  |  [  bsr_workflow.json  ](  example_workflows/bsr_workflow.json  ) |
+|  Blind Super Resolution  |  [  bsr_workflow.json  ](  example_workflows/bsr_workflow.json  ) |
 | Blind Face Restoration   |                                                                   |
-| Aligned Face Restoration |                                                                   |
 | Blind Image Denoising    |                                                                   |
