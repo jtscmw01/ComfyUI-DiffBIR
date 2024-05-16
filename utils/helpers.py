@@ -248,33 +248,117 @@ class BSRNetPipeline(Pipeline):
 
 class SwinIRPipeline(Pipeline):
 
-    def __init__(self, swinir: SwinIR, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str) -> None:
+    def __init__(self, swinir: SwinIR, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str, upscale: float) -> None:
         super().__init__(swinir, cldm, diffusion, cond_fn, device)
+        self.upscale = upscale
+        self.stage1_scale = 4
+
+    def set_final_size(self, lq: torch.Tensor) -> None:
+        h, w = lq.shape[2:]
+        self.final_size = (int(h * self.upscale), int(w * self.upscale))
+
+    def tile_process(self, image, tile_size, tile_stride, upscale_model):
+        device = model_management.get_torch_device()
+
+        memory_required = model_management.module_size(upscale_model)
+        memory_required += (512 * 512 * 3) * image.element_size() * max(self.stage1_scale, 1.0) * 384.0 #The 384.0 is an estimate of how much some of these models take, TODO: make it more accurate
+        memory_required += image.nelement() * image.element_size()
+        model_management.free_memory(memory_required, device)
+
+        upscale_model.to(device)
+        in_img = image.to(device)
+
+        tile = tile_size
+        overlap = tile_size - tile_stride
+
+        oom = True
+        while oom:
+            try:
+                steps = in_img.shape[0] * comfy.utils.get_tiled_scale_steps(in_img.shape[3], in_img.shape[2], tile_x=tile, tile_y=tile, overlap=overlap)
+                pbar = comfy.utils.ProgressBar(steps)
+                s = comfy.utils.tiled_scale(in_img, lambda a: upscale_model(a), tile_x=tile, tile_y=tile, overlap=overlap, upscale_amount=self.stage1_scale, pbar=pbar)
+                oom = False
+            except model_management.OOM_EXCEPTION as e:
+                tile //= 2
+                if tile < 128:
+                    raise e
+
+        # upscale_model.cpu()
+        s = torch.clamp(s, min=0, max=1.0)
+        s = s.to(device)
+
+        return s
 
     @count_vram_usage
-    def run_stage1(self, lq: torch.Tensor) -> torch.Tensor:
-        # NOTE: lq size is always equal to 512 in our experiments
-        # resize: ensure the input lq size is as least 512, since SwinIR is trained on 512 resolution
-        if min(lq.shape[2:]) < 512:
-            lq = resize_short_edge_to(lq, size=512)
-        ori_h, ori_w = lq.shape[2:]
-        # pad: ensure that height & width are multiples of 64
-        pad_lq = pad_to_multiples_of(lq, multiple=64)
-        # run
-        clean = self.stage1_model(pad_lq)
-        # remove padding
-        clean = clean[:, :, :ori_h, :ori_w]
+    def run_stage1(self, lq: torch.Tensor, stage1_tile, tile_size=512, tile_stride=256) -> torch.Tensor:
+        # NOTE: default upscale 4x in stage1
+        if stage1_tile:
+            clean = self.tile_process(lq, tile_size, tile_stride, self.stage1_model)
+        else:
+            clean = self.stage1_model(lq)
+
+        if min(self.final_size) < 512:
+            clean = resize_short_edge_to(clean, size=512)
+        else:
+            clean = F.interpolate(clean, size=self.final_size, mode="bicubic", antialias=True)
+
         return clean
 
 
 class SCUNetPipeline(Pipeline):
 
-    def __init__(self, scunet: SCUNet, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str) -> None:
+    def __init__(self, scunet: SCUNet, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str, upscale: float) -> None:
         super().__init__(scunet, cldm, diffusion, cond_fn, device)
+        self.upscale = upscale
+        self.stage1_scale = 4
+
+    def set_final_size(self, lq: torch.Tensor) -> None:
+        h, w = lq.shape[2:]
+        self.final_size = (int(h * self.upscale), int(w * self.upscale))
+
+    def tile_process(self, image, tile_size, tile_stride, upscale_model):
+        device = model_management.get_torch_device()
+
+        memory_required = model_management.module_size(upscale_model)
+        memory_required += (512 * 512 * 3) * image.element_size() * max(self.stage1_scale, 1.0) * 384.0 #The 384.0 is an estimate of how much some of these models take, TODO: make it more accurate
+        memory_required += image.nelement() * image.element_size()
+        model_management.free_memory(memory_required, device)
+
+        upscale_model.to(device)
+        in_img = image.to(device)
+
+        tile = tile_size
+        overlap = tile_size - tile_stride
+
+        oom = True
+        while oom:
+            try:
+                steps = in_img.shape[0] * comfy.utils.get_tiled_scale_steps(in_img.shape[3], in_img.shape[2], tile_x=tile, tile_y=tile, overlap=overlap)
+                pbar = comfy.utils.ProgressBar(steps)
+                s = comfy.utils.tiled_scale(in_img, lambda a: upscale_model(a), tile_x=tile, tile_y=tile, overlap=overlap, upscale_amount=self.stage1_scale, pbar=pbar)
+                oom = False
+            except model_management.OOM_EXCEPTION as e:
+                tile //= 2
+                if tile < 128:
+                    raise e
+
+        # upscale_model.cpu()
+        s = torch.clamp(s, min=0, max=1.0)
+        s = s.to(device)
+
+        return s
 
     @count_vram_usage
-    def run_stage1(self, lq: torch.Tensor) -> torch.Tensor:
-        clean = self.stage1_model(lq)
-        if min(clean.shape[2:]) < 512:
+    def run_stage1(self, lq: torch.Tensor, stage1_tile, tile_size=512, tile_stride=256) -> torch.Tensor:
+        # NOTE: default upscale 4x in stage1
+        if stage1_tile:
+            clean = self.tile_process(lq, tile_size, tile_stride, self.stage1_model)
+        else:
+            clean = self.stage1_model(lq)
+
+        if min(self.final_size) < 512:
             clean = resize_short_edge_to(clean, size=512)
+        else:
+            clean = F.interpolate(clean, size=self.final_size, mode="bicubic", antialias=True)
+
         return clean
