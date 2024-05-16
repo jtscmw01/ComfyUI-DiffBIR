@@ -111,7 +111,7 @@ class BFRInferenceLoop(InferenceLoop):
         self.swinir_face = stage1_model
 
     def init_pipeline(self) -> None:
-        self.pipeline = SwinIRPipeline(self.swinir_face, self.cldm, self.diffusion, self.cond_fn, self.args.device)
+        self.pipeline = SwinIRPipeline(self.swinir_face, self.cldm, self.diffusion, self.cond_fn, self.args.device, self.args.upscale)
 
 
 class BIDInferenceLoop(InferenceLoop):
@@ -121,4 +121,4 @@ class BIDInferenceLoop(InferenceLoop):
         self.scunet_psnr = stage1_model
 
     def init_pipeline(self) -> None:
-        self.pipeline = SCUNetPipeline(self.scunet_psnr, self.cldm, self.diffusion, self.cond_fn, self.args.device)
+        self.pipeline = SCUNetPipeline(self.scunet_psnr, self.cldm, self.diffusion, self.cond_fn, self.args.device, self.args.upscale)
