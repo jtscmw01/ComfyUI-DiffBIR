@@ -39,7 +39,7 @@ To install ComfyUI-DiffBIR in addition to an existing installation of ComfyUI, y
 4. Restart ComfyUI
 
 ### Step 2: download the pretrained model
-put the model into `Comfyui/models/diffbir/`
+put the model into `ComfyUI/models/diffbir/`
 |      model     |                                                          download link                                                         | Baidu Netdisk |
 |:--------------:|:------------------------------------------------------------------------------------------------------------------------------:|---------------|
 |     bsrnet     | [BSRNet.pth](https://github.com/cszn/KAIR/releases/download/v1.0/BSRNet.pth)                                                   |               |
