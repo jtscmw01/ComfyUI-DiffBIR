@@ -251,7 +251,7 @@ class SwinIRPipeline(Pipeline):
     def __init__(self, swinir: SwinIR, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str, upscale: float) -> None:
         super().__init__(swinir, cldm, diffusion, cond_fn, device)
         self.upscale = upscale
-        self.stage1_scale = 4
+        self.stage1_scale = 1
 
     def set_final_size(self, lq: torch.Tensor) -> None:
         h, w = lq.shape[2:]
@@ -310,7 +310,7 @@ class SCUNetPipeline(Pipeline):
     def __init__(self, scunet: SCUNet, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str, upscale: float) -> None:
         super().__init__(scunet, cldm, diffusion, cond_fn, device)
         self.upscale = upscale
-        self.stage1_scale = 4
+        self.stage1_scale = 1
 
     def set_final_size(self, lq: torch.Tensor) -> None:
         h, w = lq.shape[2:]
