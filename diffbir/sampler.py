@@ -38,7 +38,7 @@ class DiffBIR_sample_advanced:
             "cldm": ("CLDM",),
             "diffusion": ("DIFFUSION",),
             "image": ("IMAGE",),
-            "task": ("TASK"),
+            "task": ("TASK", ),
             "upscale_ratio": ("FLOAT", {"default": 2, "min": 0.1, "max": 8.0, "step": 0.1}),
             "steps": ("INT", {"default": 20, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
             "cfg": ("FLOAT", {"default": 4.0, "min": 0, "max": 100, "step": 0.1}),
