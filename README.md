@@ -26,8 +26,18 @@ TODO:
 |:---------------------------------:|:---------------------------------:|
 |   ![2_lq](./assets/bsr/2_lq.jpg ) | ![ 2_hq ]( ./assets/bsr/2_hq.png )|
 |   ![1_lq](./assets/bsr/1_lq.jpg)  | ![ 1_hq ]( ./assets/bsr/1_hq.png )|
-|   ![3_lq](./assets/bsr/3_lq.png)  | ![ 3_hq ]( ./assets/bsr/3_hq.png )|
-|   ![4_lq](./assets/bsr/4_lq.jpeg) | ![ 4_hq ]( ./assets/bsr/4_hq.png )|
+
+## Blind Face Restoration
+|        low resolution image       |       super resolution image      |
+|:---------------------------------:|:---------------------------------:|
+|   ![1_lq](./assets/bfr/1_lq.png ) | ![ 1_hq ]( ./assets/bfr/1_hq.png )|
+|   ![2_lq](./assets/bfr/2_lq.jpg)  | ![ 2_hq ]( ./assets/bfr/2_hq.png )|
+
+## Blind Image Denoising
+|        low resolution image       |       super resolution image      |
+|:---------------------------------:|:---------------------------------:|
+|   ![1_lq](./assets/bid/1_lq.jpg ) | ![ 1_hq ]( ./assets/bid/1_hq.png )|
+|   ![2_lq](./assets/bid/2_lq.png)  | ![ 2_hq ]( ./assets/bid/2_hq.png )|
 
 # Installing
 ### Step 1: clone the repo and install the dependencies
@@ -52,6 +62,6 @@ put the model into `ComfyUI/models/diffbir/`
 # Workflows
 |           task           |                              workflow                             |
 |:------------------------:|:-----------------------------------------------------------------:|
-|  Blind Super Resolution  |  [  bsr_workflow.json  ](  example_workflows/bsr_workflow.json  ) |
-| Blind Face Restoration   |                                                                   |
-| Blind Image Denoising    |                                                                   |
+| Blind Super Resolution   |  [  bsr_workflow.json  ](  example_workflows/bsr_workflow.json  ) |
+| Blind Face Restoration   |  [  bfr_workflow.json  ](  example_workflows/bfr_workflow.json  ) |
+| Blind Image Denoising    |  [  bid_workflow.json  ](  example_workflows/bid_workflow.json  ) |
