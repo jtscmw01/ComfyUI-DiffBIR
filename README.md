@@ -1,6 +1,6 @@
 # ComfyUI DiffBIR
 
-Comfyui-DiffBIR is a comfyui implementation of offical DiffBIR. DiffBIR v2 is a highly effective super-resolution algorithm. If you find this repo helpful, please don't hesitate to give it a star. Thank you ❤️.
+Comfyui-DiffBIR is a comfyui implementation of offical DiffBIR. DiffBIR v2 is an awesome super-resolution algorithm. If you find this repo helpful, please don't hesitate to give it a star. Thank you!❤️
 
 ---
 
