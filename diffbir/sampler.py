@@ -184,15 +184,16 @@ class DiffBIR_sample:
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def sample(self, stage1_model, cldm, diffusion, image, upscale_ratio, steps, cfg, better_start, tiled, tile_size, tile_stride, pos_prompt, neg_prompt, 
+    def sample(self, stage1_model, cldm, diffusion, image, upscale_ratio, steps, cfg, 
+               better_start, tiled, tile_size, tile_stride, pos_prompt, neg_prompt, 
                seed, device):
         device = check_device(device)
         print(image.shape)
 
-        # stage1 tile by resolution
-        stage1_tile = False
-        if image.shape[1] * image.shape[2] > 768 * 1024:
-            stage1_tile = True
+        # # stage1 tile by resolution
+        # stage1_tile = False
+        # if image.shape[1] * image.shape[2] > 768 * 1024:
+        #     stage1_tile = True
 
         args = argparse.Namespace(
             task='sr',
@@ -203,9 +204,9 @@ class DiffBIR_sample:
             tiled=tiled,
             tile_size=tile_size,
             tile_stride=tile_stride,
-            stage1_tile=stage1_tile,
-            stage1_tile_size=512,
-            stage1_tile_stride=480,
+            stage1_tile=tiled,
+            stage1_tile_size=tile_size,
+            stage1_tile_stride=tile_stride,
             pos_prompt=pos_prompt,
             neg_prompt=neg_prompt,
             cfg_scale=cfg,
