@@ -91,8 +91,10 @@ class DiffBIR_sample_advanced:
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def sample(self, stage1_model, cldm, diffusion, image, task, upscale_ratio, steps, cfg, better_start, tiled, tile_size, tile_stride, stage1_tile, stage1_tile_size, stage1_tile_stride, pos_prompt, neg_prompt, 
-               seed, device, guidance, g_loss, g_scale, g_start, g_stop, g_space, g_repeat):
+    def sample(self, stage1_model, cldm, diffusion, image, task, upscale_ratio, steps, cfg, 
+               better_start, tiled, tile_size, tile_stride, stage1_tile, stage1_tile_size, 
+               stage1_tile_stride, pos_prompt, neg_prompt, seed, device, guidance, g_loss, 
+               g_scale, g_start, g_stop, g_space, g_repeat):
         device = check_device(device)
         print(image.shape)
 
