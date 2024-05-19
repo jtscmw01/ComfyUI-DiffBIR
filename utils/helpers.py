@@ -193,21 +193,22 @@ class BSRNetPipeline(Pipeline):
         super().__init__(bsrnet, cldm, diffusion, cond_fn, device)
         self.upscale = upscale
         self.stage1_scale = 4
+        self.device = device
 
     def set_final_size(self, lq: torch.Tensor) -> None:
         h, w = lq.shape[2:]
         self.final_size = (int(h * self.upscale), int(w * self.upscale))
 
     def tile_process(self, image, tile_size, tile_stride, upscale_model):
-        device = model_management.get_torch_device()
+        # device = model_management.get_torch_device()
+        # if self.device == 'cuda':
+        #     memory_required = model_management.module_size(upscale_model)
+        #     memory_required += (512 * 512 * 3) * image.element_size() * max(self.stage1_scale, 1.0) * 384.0 #The 384.0 is an estimate of how much some of these models take, TODO: make it more accurate
+        #     memory_required += image.nelement() * image.element_size()
+        #     model_management.free_memory(memory_required, self.device)
 
-        memory_required = model_management.module_size(upscale_model)
-        memory_required += (512 * 512 * 3) * image.element_size() * max(self.stage1_scale, 1.0) * 384.0 #The 384.0 is an estimate of how much some of these models take, TODO: make it more accurate
-        memory_required += image.nelement() * image.element_size()
-        model_management.free_memory(memory_required, device)
-
-        upscale_model.to(device)
-        in_img = image.to(device)
+        upscale_model.to(self.device)
+        in_img = image.to(self.device)
 
         tile = tile_size
         overlap = tile_size - tile_stride
@@ -226,7 +227,7 @@ class BSRNetPipeline(Pipeline):
 
         # upscale_model.cpu()
         s = torch.clamp(s, min=0, max=1.0)
-        s = s.to(device)
+        s = s.to(self.device)
 
         return s
 
@@ -252,21 +253,21 @@ class SwinIRPipeline(Pipeline):
         super().__init__(swinir, cldm, diffusion, cond_fn, device)
         self.upscale = upscale
         self.stage1_scale = 1
+        self.device = device
 
     def set_final_size(self, lq: torch.Tensor) -> None:
         h, w = lq.shape[2:]
         self.final_size = (int(h * self.upscale), int(w * self.upscale))
 
     def tile_process(self, image, tile_size, tile_stride, upscale_model):
-        device = model_management.get_torch_device()
+        # if self.device == 'cuda':
+        #     memory_required = model_management.module_size(upscale_model)
+        #     memory_required += (512 * 512 * 3) * image.element_size() * max(self.stage1_scale, 1.0) * 384.0 #The 384.0 is an estimate of how much some of these models take, TODO: make it more accurate
+        #     memory_required += image.nelement() * image.element_size()
+        #     model_management.free_memory(memory_required, self.device)
 
-        memory_required = model_management.module_size(upscale_model)
-        memory_required += (512 * 512 * 3) * image.element_size() * max(self.stage1_scale, 1.0) * 384.0 #The 384.0 is an estimate of how much some of these models take, TODO: make it more accurate
-        memory_required += image.nelement() * image.element_size()
-        model_management.free_memory(memory_required, device)
-
-        upscale_model.to(device)
-        in_img = image.to(device)
+        upscale_model.to(self.device)
+        in_img = image.to(self.device)
 
         tile = tile_size
         overlap = tile_size - tile_stride
@@ -285,7 +286,7 @@ class SwinIRPipeline(Pipeline):
 
         # upscale_model.cpu()
         s = torch.clamp(s, min=0, max=1.0)
-        s = s.to(device)
+        s = s.to(self.device)
 
         return s
 
@@ -314,21 +315,21 @@ class SCUNetPipeline(Pipeline):
         super().__init__(scunet, cldm, diffusion, cond_fn, device)
         self.upscale = upscale
         self.stage1_scale = 1
+        self.device = device
 
     def set_final_size(self, lq: torch.Tensor) -> None:
         h, w = lq.shape[2:]
         self.final_size = (int(h * self.upscale), int(w * self.upscale))
 
     def tile_process(self, image, tile_size, tile_stride, upscale_model):
-        device = model_management.get_torch_device()
+        # if self.device == 'cuda':
+        #     memory_required = model_management.module_size(upscale_model)
+        #     memory_required += (512 * 512 * 3) * image.element_size() * max(self.stage1_scale, 1.0) * 384.0 #The 384.0 is an estimate of how much some of these models take, TODO: make it more accurate
+        #     memory_required += image.nelement() * image.element_size()
+        #     model_management.free_memory(memory_required, self.device)
 
-        memory_required = model_management.module_size(upscale_model)
-        memory_required += (512 * 512 * 3) * image.element_size() * max(self.stage1_scale, 1.0) * 384.0 #The 384.0 is an estimate of how much some of these models take, TODO: make it more accurate
-        memory_required += image.nelement() * image.element_size()
-        model_management.free_memory(memory_required, device)
-
-        upscale_model.to(device)
-        in_img = image.to(device)
+        upscale_model.to(self.device)
+        in_img = image.to(self.device)
 
         tile = tile_size
         overlap = tile_size - tile_stride
@@ -347,7 +348,7 @@ class SCUNetPipeline(Pipeline):
 
         # upscale_model.cpu()
         s = torch.clamp(s, min=0, max=1.0)
-        s = s.to(device)
+        s = s.to(self.device)
 
         return s
 
