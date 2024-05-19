@@ -129,15 +129,6 @@ class Stage1_load:
     DESCRIPTION = """"""
 
     def init_stage1(self, task, device):
-        # current_directory = os.getcwd()
-        # current_directory_contents = os.listdir(current_directory)
-
-        # if "ComfyUI" in current_directory_contents and "custom_nodes" not in current_directory_contents:
-        #     pre_path = os.path.join(current_directory, "ComfyUI", "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
-        # else:
-        #     pre_path = os.path.join(current_directory, "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
-        
-
         if task == 'bsr':
             config_path = os.path.join(self.pre_path, "bsrnet.yaml")
             bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load(config_path))
