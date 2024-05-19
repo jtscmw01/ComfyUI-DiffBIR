@@ -98,7 +98,14 @@ class Stage2_load:
 class Stage1_load:
 
     def __init__(self):
-        pass
+        current_directory = os.getcwd()
+        current_directory_contents = os.listdir(current_directory)
+
+        if "ComfyUI" in current_directory_contents and "custom_nodes" not in current_directory_contents:
+            self.pre_path = os.path.join(current_directory, "ComfyUI", "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
+        else:
+            self.pre_path = os.path.join(current_directory, "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
+        
     
     @classmethod
     def INPUT_TYPES(s):
@@ -157,7 +164,13 @@ class Stage1_load:
 class Simple_load:
 
     def __init__(self):
-        pass
+        current_directory = os.getcwd()
+        current_directory_contents = os.listdir(current_directory)
+
+        if "ComfyUI" in current_directory_contents and "custom_nodes" not in current_directory_contents:
+            self.pre_path = os.path.join(current_directory, "ComfyUI", "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
+        else:
+            self.pre_path = os.path.join(current_directory, "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
     
     @classmethod
     def INPUT_TYPES(s):
@@ -180,21 +193,14 @@ class Simple_load:
     DESCRIPTION = """"""
 
     def simple_load(self, device):
-        current_directory = os.getcwd()
-        current_directory_contents = os.listdir(current_directory)
 
-        if "ComfyUI" in current_directory_contents and "custom_nodes" not in current_directory_contents:
-            pre_path = os.path.join(current_directory, "ComfyUI", "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
-        else:
-            pre_path = os.path.join(current_directory, "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
-        
-        config_path = os.path.join(pre_path, "bsrnet.yaml")
+        config_path = os.path.join(self.pre_path, "bsrnet.yaml")
         bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load(config_path))
         sd = load_model_from_url(MODELS["bsrnet"])
         bsrnet.load_state_dict(sd, strict=True)
         bsrnet.eval().to(device)
 
-        config_path = os.path.join(pre_path, "cldm.yaml")
+        config_path = os.path.join(self.pre_path, "cldm.yaml")
         cldm: ControlLDM = instantiate_from_config(OmegaConf.load(config_path))
         sd = load_model_from_url(MODELS["sd_v21"])
         unused = cldm.load_pretrained_sd(sd)
@@ -204,7 +210,7 @@ class Simple_load:
 
         cldm.load_controlnet_from_ckpt(control_sd)
         cldm.eval().to(device)
-        config_path = os.path.join(pre_path, "diffusion.yaml")
+        config_path = os.path.join(self.pre_path, "diffusion.yaml")
         diffusion: Diffusion = instantiate_from_config(OmegaConf.load(config_path))
         diffusion.to(device)
 
