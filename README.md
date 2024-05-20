@@ -18,6 +18,7 @@ TODO:
 - **2024.05.16** ✅ bfr support
 - **2024.05.16** ✅ bid support
 - **2024.05.16** ✅ bfr and bid workflow
+- [ ] support fp16 inference
 - [ ] multi images support
 - [ ] stage1 and stage2 sampler split
 
