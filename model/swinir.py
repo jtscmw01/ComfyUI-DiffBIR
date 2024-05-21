@@ -145,6 +145,9 @@ class WindowAttention(nn.Module):
 
         attn = self.attn_drop(attn)
 
+        if v.dtype == torch.float16:
+            attn = attn.half()
+
         x = (attn @ v).transpose(1, 2).reshape(B_, N, C)
         x = self.proj(x)
         x = self.proj_drop(x)

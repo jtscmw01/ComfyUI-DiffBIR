@@ -54,9 +54,10 @@ class InferenceLoop:
         ...
 
     @count_vram_usage
-    def init_stage2_model(self, cldm, diffusion) -> None:
+    def init_stage2_model(self, cldm, diffusion, infer_tpye) -> None:
         self.cldm = cldm
         self.diffusion = diffusion
+        self.infer_type = infer_tpye
 
     def init_cond_fn(self) -> None:
         if not self.args.guidance:
@@ -97,28 +98,34 @@ class InferenceLoop:
 class BSRInferenceLoop(InferenceLoop):
 
     @count_vram_usage
-    def init_stage1_model(self, stage1_model) -> None:
+    def init_stage1_model(self, stage1_model, infer_type, keep_stage1_loaded=True) -> None:
         self.bsrnet = stage1_model
+        self.infer_type = infer_type
+        self.keep_stage1_loaded = keep_stage1_loaded
 
     def init_pipeline(self) -> None:
-        self.pipeline = BSRNetPipeline(self.bsrnet, self.cldm, self.diffusion, self.cond_fn, self.args.device, self.args.upscale)
+        self.pipeline = BSRNetPipeline(self.bsrnet, self.cldm, self.diffusion, self.cond_fn, self.args.device, self.args.upscale, self.infer_type, self.keep_stage1_loaded)
 
 
 class BFRInferenceLoop(InferenceLoop):
 
     @count_vram_usage
-    def init_stage1_model(self, stage1_model) -> None:
+    def init_stage1_model(self, stage1_model, infer_type, keep_stage1_loaded=True) -> None:
         self.swinir_face = stage1_model
+        self.infer_type = infer_type
+        self.keep_stage1_loaded = keep_stage1_loaded
 
     def init_pipeline(self) -> None:
-        self.pipeline = SwinIRPipeline(self.swinir_face, self.cldm, self.diffusion, self.cond_fn, self.args.device, self.args.upscale)
+        self.pipeline = SwinIRPipeline(self.swinir_face, self.cldm, self.diffusion, self.cond_fn, self.args.device, self.args.upscale, self.infer_type, self.keep_stage1_loaded)
 
 
 class BIDInferenceLoop(InferenceLoop):
 
     @count_vram_usage
-    def init_stage1_model(self, stage1_model) -> None:
+    def init_stage1_model(self, stage1_model, infer_type, keep_stage1_loaded=True) -> None:
         self.scunet_psnr = stage1_model
+        self.infer_type = infer_type
+        self.keep_stage1_loaded = keep_stage1_loaded
 
     def init_pipeline(self) -> None:
-        self.pipeline = SCUNetPipeline(self.scunet_psnr, self.cldm, self.diffusion, self.cond_fn, self.args.device, self.args.upscale)
+        self.pipeline = SCUNetPipeline(self.scunet_psnr, self.cldm, self.diffusion, self.cond_fn, self.args.device, self.args.upscale, self.infer_type, self.keep_stage1_loaded)

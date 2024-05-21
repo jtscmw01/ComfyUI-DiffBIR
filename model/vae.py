@@ -553,6 +553,10 @@ class AutoencoderKL(nn.Module):
         return posterior
 
     def decode(self, z):
+        model_dtype = next(self.post_quant_conv.parameters())
+        if model_dtype.dtype == torch.float16:
+            z = z.half()
+
         z = self.post_quant_conv(z)
         dec = self.decoder(z)
         return dec

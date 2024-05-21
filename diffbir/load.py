@@ -56,11 +56,6 @@ class Stage2_load:
 
     def __init__(self):
         current_directory = os.getcwd()
-        current_directory_contents = os.listdir(current_directory)
-
-        # if "ComfyUI" in current_directory_contents and "custom_nodes" not in current_directory_contents:
-        #     self.pre_path = os.path.join(current_directory, "ComfyUI", "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
-        # else:
         self.pre_path = os.path.join(current_directory, "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
         
     
@@ -74,17 +69,23 @@ class Stage2_load:
                     ], {
                         "default": 'cuda'
                     }),
-
+            "infer_type": (
+                    [
+                        'float32',
+                        'float16',
+                    ], {
+                        "default": 'float32'
+                    }),
             }
         }
 
-    RETURN_TYPES = ("CLDM", "DIFFUSION")
-    RETURN_NAMES = ("cldm", "diffusion")
+    RETURN_TYPES = ("CLDM", "DIFFUSION", "INFER_TYPE")
+    RETURN_NAMES = ("cldm", "diffusion", "infer_type")
     FUNCTION = "init_stage2"
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def init_stage2(self, device):
+    def init_stage2(self, device, infer_type):
 
         config_path = os.path.join(self.pre_path, "cldm.yaml")
         if not os.path.isfile(config_path):
@@ -97,25 +98,27 @@ class Stage2_load:
         control_sd = load_model_from_url(MODELS["v2"])
 
         cldm.load_controlnet_from_ckpt(control_sd)
-        cldm.eval().to(device)
+        if infer_type == 'float16':
+            cldm = cldm.eval().to(device).half()
+        else:
+            cldm = cldm.eval().to(device)
+
         config_path = os.path.join(self.pre_path, "diffusion.yaml")
         if not os.path.isfile(config_path):
             config_path = find_file("diffusion.yaml")
         diffusion: Diffusion = instantiate_from_config(OmegaConf.load(config_path))
-        diffusion.to(device)
+        if infer_type == 'float16':
+            diffusion = diffusion.to(device).half()
+        else:
+            diffusion = diffusion.to(device)
 
-        return cldm, diffusion
+        return cldm, diffusion, infer_type
     
 
 class Stage1_load:
 
     def __init__(self):
         current_directory = os.getcwd()
-        current_directory_contents = os.listdir(current_directory)
-
-        # if "ComfyUI" in current_directory_contents and "custom_nodes" not in current_directory_contents:
-        #     self.pre_path = os.path.join(current_directory, "ComfyUI", "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
-        # else:
         self.pre_path = os.path.join(current_directory, "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
         
     
@@ -137,7 +140,13 @@ class Stage1_load:
                     ], {
                         "default": 'cuda'
                     }),
-
+            "infer_type": (
+                    [
+                        'float32',
+                        'float16',
+                    ], {
+                        "default": 'float32'
+                    }),
             }
         }
 
@@ -147,7 +156,7 @@ class Stage1_load:
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def init_stage1(self, task, device):
+    def init_stage1(self, task, device, infer_type):
         if task == 'bsr':
             config_path = os.path.join(self.pre_path, "bsrnet.yaml")
             if not os.path.isfile(config_path):
@@ -155,8 +164,13 @@ class Stage1_load:
             bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load(config_path))
             sd = load_model_from_url(MODELS["bsrnet"])
             bsrnet.load_state_dict(sd, strict=True)
-            bsrnet.eval().to(device)
+
+            if infer_type == 'float16':
+                bsrnet = bsrnet.eval().to(device).half()
+            else:
+                bsrnet = bsrnet.eval().to(device)
             stage1_model = bsrnet
+
         elif task == 'bfr':
             config_path = os.path.join(self.pre_path, "swinir.yaml")
             if not os.path.isfile(config_path):
@@ -164,8 +178,12 @@ class Stage1_load:
             swinir_face: SwinIR = instantiate_from_config(OmegaConf.load(config_path))
             sd = load_model_from_url(MODELS["swinir_face"])
             swinir_face.load_state_dict(sd, strict=True)
-            swinir_face.eval().to(device)
+            if infer_type == 'float16':
+                swinir_face = swinir_face.eval().to(device).half()
+            else:
+                swinir_face = swinir_face.eval().to(device)
             stage1_model = swinir_face
+
         elif task == 'bid':
             config_path = os.path.join(self.pre_path, "scunet.yaml")
             if not os.path.isfile(config_path):
@@ -173,7 +191,11 @@ class Stage1_load:
             scunet_psnr: SCUNet = instantiate_from_config(OmegaConf.load(config_path))
             sd = load_model_from_url(MODELS["scunet_psnr"])
             scunet_psnr.load_state_dict(sd, strict=True)
-            scunet_psnr.eval().to(device)
+            if infer_type == 'float16':
+                scunet_psnr = scunet_psnr.eval().to(device).half()
+            else:
+                scunet_psnr = scunet_psnr.eval().to(device)
+                
             stage1_model = scunet_psnr
         
         return (stage1_model, task, )
@@ -183,11 +205,6 @@ class Simple_load:
 
     def __init__(self):
         current_directory = os.getcwd()
-        current_directory_contents = os.listdir(current_directory)
-
-        # if "ComfyUI" in current_directory_contents and "custom_nodes" not in current_directory_contents:
-        #     self.pre_path = os.path.join(current_directory, "ComfyUI", "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
-        # else:
         self.pre_path = os.path.join(current_directory, "custom_nodes", "ComfyUI-DiffBIR", "configs", "inference")
     
     @classmethod
@@ -200,18 +217,25 @@ class Simple_load:
                     ], {
                         "default": 'cuda'
                     }),
-
+            "infer_type": (
+                    [
+                        'float32',
+                        'float16',
+                    ], {
+                        "default": 'float32'
+                    }),
             }
         }
 
-    RETURN_TYPES = ("STAGE1", "CLDM", "DIFFUSION")
-    RETURN_NAMES = ("stage1_model", "cldm", "diffusion")
+    RETURN_TYPES = ("STAGE1", "CLDM", "DIFFUSION", "INFER_TYPE")
+    RETURN_NAMES = ("stage1_model", "cldm", "diffusion", "infer_type")
     FUNCTION = "simple_load"
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def simple_load(self, device):
-
+    def simple_load(self, device, infer_type):
+        if infer_type == 'float16':
+            print('using float16 inference...')
         config_path = os.path.join(self.pre_path, "bsrnet.yaml")
         if not os.path.isfile(config_path):
             config_path = find_file("bsrnet.yaml")
@@ -219,8 +243,11 @@ class Simple_load:
         bsrnet: RRDBNet = instantiate_from_config(OmegaConf.load(config_path))
         sd = load_model_from_url(MODELS["bsrnet"])
         bsrnet.load_state_dict(sd, strict=True)
-        bsrnet.eval().to(device)
-
+        if infer_type == 'float16':
+            bsrnet = bsrnet.eval().to(device).half()
+        else:
+            bsrnet = bsrnet.eval().to(device)
+        
         config_path = os.path.join(self.pre_path, "cldm.yaml")
         if not os.path.isfile(config_path):
             config_path = find_file("cldm.yaml")
@@ -233,12 +260,19 @@ class Simple_load:
         control_sd = load_model_from_url(MODELS["v2"])
 
         cldm.load_controlnet_from_ckpt(control_sd)
-        cldm.eval().to(device)
+        if infer_type == 'float16':
+            cldm = cldm.eval().to(device).half()
+        else:
+            cldm = cldm.eval().to(device)
+        
         config_path = os.path.join(self.pre_path, "diffusion.yaml")
         if not os.path.isfile(config_path):
             config_path = find_file("diffusion.yaml")
         print('3:', config_path)
         diffusion: Diffusion = instantiate_from_config(OmegaConf.load(config_path))
-        diffusion.to(device)
+        if infer_type == 'float16':
+            diffusion = diffusion.to(device).half()
+        else:
+            diffusion = diffusion.to(device)
 
-        return (bsrnet, cldm, diffusion)
+        return (bsrnet, cldm, diffusion, infer_type)

@@ -73,12 +73,13 @@ class SpacedSampler(nn.Module):
     https://arxiv.org/pdf/2102.09672.pdf
     """
     
-    def __init__(self, betas: np.ndarray) -> "SpacedSampler":
+    def __init__(self, betas: np.ndarray, infer_type) -> "SpacedSampler":
         super().__init__()
         self.num_timesteps = len(betas)
         self.original_betas = betas
         self.original_alphas_cumprod = np.cumprod(1.0 - betas, axis=0)
         self.context = {}
+        self.infer_type = infer_type
 
     def register(self, name: str, value: np.ndarray) -> None:
         self.register_buffer(name, torch.tensor(value, dtype=torch.float32))
@@ -320,14 +321,20 @@ class SpacedSampler(nn.Module):
         if x_T is None:
             # TODO: not convert to float32, may trigger an error
             img = torch.randn((batch_size, *x_size), device=device)
+            if self.infer_type == 'float16':
+                img = img.half()
         else:
             img = x_T
+            if self.infer_type == 'float16':
+                img = img.half()
+
         timesteps = np.flip(self.timesteps) # [1000, 950, 900, ...]
         total_steps = len(self.timesteps)
         iterator = tqdm(timesteps, total=total_steps, leave=progress_leave, disable=not progress)
         for i, step in enumerate(iterator):
             ts = torch.full((batch_size,), step, device=device, dtype=torch.long)
             index = torch.full_like(ts, fill_value=total_steps - i - 1)
+
             img = self.p_sample(
                 model, img, ts, index, cond, uncond, cfg_scale, cond_fn,
                 tiled, tile_size, tile_stride

@@ -1,17 +1,42 @@
 {
-  "last_node_id": 13,
-  "last_link_id": 22,
+  "last_node_id": 16,
+  "last_link_id": 29,
   "nodes": [
     {
-      "id": 6,
+      "id": 9,
+      "type": "PreviewImage",
+      "pos": [
+        1279,
+        -176
+      ],
+      "size": {
+        "0": 478.01593017578125,
+        "1": 683.1017456054688
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 29
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 16,
       "type": "Stage2_load",
       "pos": [
-        274,
-        470
+        285,
+        0
       ],
       "size": {
         "0": 315,
-        "1": 78
+        "1": 122
       },
       "flags": {},
       "order": 0,
@@ -21,48 +46,99 @@
           "name": "cldm",
           "type": "CLDM",
           "links": [
-            19
+            25
           ],
-          "shape": 3,
-          "slot_index": 0
+          "shape": 3
         },
         {
           "name": "diffusion",
           "type": "DIFFUSION",
           "links": [
-            20
+            26
           ],
           "shape": 3,
           "slot_index": 1
+        },
+        {
+          "name": "infer_type",
+          "type": "INFER_TYPE",
+          "links": [
+            27
+          ],
+          "shape": 3,
+          "slot_index": 2
         }
       ],
       "properties": {
         "Node name for S&R": "Stage2_load"
       },
       "widgets_values": [
-        "cuda"
+        "cuda",
+        "float32"
       ]
     },
     {
-      "id": 8,
-      "type": "LoadImage",
+      "id": 15,
+      "type": "Stage1_load",
       "pos": [
-        274,
-        631
+        287,
+        -186
       ],
       "size": {
         "0": 315,
-        "1": 314
+        "1": 126
       },
       "flags": {},
       "order": 1,
       "mode": 0,
       "outputs": [
         {
+          "name": "stage1_model",
+          "type": "STAGE1",
+          "links": [
+            23
+          ],
+          "shape": 3
+        },
+        {
+          "name": "task",
+          "type": "TASK",
+          "links": [
+            24
+          ],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Stage1_load"
+      },
+      "widgets_values": [
+        "bid",
+        "cuda",
+        "float32"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "LoadImage",
+      "pos": [
+        288,
+        218
+      ],
+      "size": {
+        "0": 315,
+        "1": 314
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            21
+            28
           ],
           "shape": 3,
           "slot_index": 0
@@ -78,45 +154,20 @@
         "Node name for S&R": "LoadImage"
       },
       "widgets_values": [
-        "Audrey_Hepburn (2).jpg",
+        "2_lq.png",
         "image"
       ]
     },
     {
-      "id": 9,
-      "type": "PreviewImage",
-      "pos": [
-        1242,
-        308
-      ],
-      "size": [
-        478.01593017578125,
-        683.1017456054688
-      ],
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 22
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 13,
+      "id": 14,
       "type": "DiffBIR_sample_advanced",
       "pos": [
-        717,
-        309
+        776,
+        -180
       ],
       "size": {
         "0": 400,
-        "1": 686
+        "1": 730
       },
       "flags": {},
       "order": 3,
@@ -125,27 +176,34 @@
         {
           "name": "stage1_model",
           "type": "STAGE1",
-          "link": 17
+          "link": 23,
+          "slot_index": 0
         },
         {
           "name": "task",
           "type": "TASK",
-          "link": 18
+          "link": 24
         },
         {
           "name": "cldm",
           "type": "CLDM",
-          "link": 19
+          "link": 25,
+          "slot_index": 2
         },
         {
           "name": "diffusion",
           "type": "DIFFUSION",
-          "link": 20
+          "link": 26
+        },
+        {
+          "name": "infer_type",
+          "type": "INFER_TYPE",
+          "link": 27
         },
         {
           "name": "image",
           "type": "IMAGE",
-          "link": 21
+          "link": 28
         }
       ],
       "outputs": [
@@ -153,7 +211,7 @@
           "name": "image",
           "type": "IMAGE",
           "links": [
-            22
+            29
           ],
           "shape": 3,
           "slot_index": 0
@@ -170,12 +228,13 @@
         false,
         512,
         256,
+        true,
         false,
         512,
         256,
         "best quality, hdr, 4k",
         "low quality, blurry, low-resolution, noisy, unsharp, weird textures",
-        557564851470685,
+        903788935027505,
         "randomize",
         "cuda",
         false,
@@ -186,94 +245,60 @@
         "latent",
         1
       ]
-    },
-    {
-      "id": 5,
-      "type": "Stage1_load",
-      "pos": [
-        273,
-        309
-      ],
-      "size": {
-        "0": 315,
-        "1": 102
-      },
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "stage1_model",
-          "type": "STAGE1",
-          "links": [
-            17
-          ],
-          "shape": 3,
-          "slot_index": 0
-        },
-        {
-          "name": "task",
-          "type": "TASK",
-          "links": [
-            18
-          ],
-          "shape": 3,
-          "slot_index": 1
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "Stage1_load"
-      },
-      "widgets_values": [
-        "bid",
-        "cuda"
-      ]
     }
   ],
   "links": [
     [
-      17,
-      5,
+      23,
+      15,
       0,
-      13,
+      14,
       0,
       "STAGE1"
     ],
     [
-      18,
-      5,
+      24,
+      15,
       1,
-      13,
+      14,
       1,
       "TASK"
     ],
     [
-      19,
-      6,
+      25,
+      16,
       0,
-      13,
+      14,
       2,
       "CLDM"
     ],
     [
-      20,
-      6,
+      26,
+      16,
       1,
-      13,
+      14,
       3,
       "DIFFUSION"
     ],
     [
-      21,
+      27,
+      16,
+      2,
+      14,
+      4,
+      "INFER_TYPE"
+    ],
+    [
+      28,
       8,
       0,
-      13,
-      4,
+      14,
+      5,
       "IMAGE"
     ],
     [
-      22,
-      13,
+      29,
+      14,
       0,
       9,
       0,

@@ -39,6 +39,14 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
 
     def forward(self, x, emb, context=None):
         for layer in self:
+            model_dtype = next(layer.parameters())
+            if model_dtype.dtype == th.float16:
+                x = x.half()
+                break
+            else:
+                break
+
+        for layer in self:
             if isinstance(layer, TimestepBlock):
                 x = layer(x, emb)
             elif isinstance(layer, SpatialTransformer):

@@ -37,6 +37,7 @@ class DiffBIR_sample_advanced:
             "task": ("TASK", ),
             "cldm": ("CLDM",),
             "diffusion": ("DIFFUSION",),
+            "infer_type": ("INFER_TYPE",),
             "image": ("IMAGE",),
             "upscale_ratio": ("FLOAT", {"default": 2, "min": 0.1, "max": 8.0, "step": 0.1}),
             "steps": ("INT", {"default": 20, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
@@ -45,6 +46,7 @@ class DiffBIR_sample_advanced:
             "tiled": ("BOOLEAN", {"default": True}),
             "tile_size": ("INT", {"default": 512, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
             "tile_stride": ("INT", {"default": 256, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
+            "keep_stage1_loaded": ("BOOLEAN", {"default": True}),
             "stage1_tile": ("BOOLEAN", {"default": True}),
             "stage1_tile_size": ("INT", {"default": 512, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
             "stage1_tile_stride": ("INT", {"default": 256, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
@@ -90,8 +92,8 @@ class DiffBIR_sample_advanced:
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def sample(self, stage1_model, task, cldm, diffusion, image, upscale_ratio, steps, cfg, 
-               better_start, tiled, tile_size, tile_stride, stage1_tile, stage1_tile_size, 
+    def sample(self, stage1_model, task, cldm, diffusion, infer_type, image, upscale_ratio, steps, cfg, 
+               better_start, tiled, tile_size, tile_stride, keep_stage1_loaded, stage1_tile, stage1_tile_size, 
                stage1_tile_stride, pos_prompt, neg_prompt, seed, device, guidance, g_loss, 
                g_scale, g_start, g_stop, g_space, g_repeat):
         device = check_device(device)
@@ -135,8 +137,8 @@ class DiffBIR_sample_advanced:
         else:
             raise NotImplementedError(f'task {task} not implemented')
         
-        pipe.init_stage1_model(stage1_model)
-        pipe.init_stage2_model(cldm, diffusion)
+        pipe.init_stage1_model(stage1_model, infer_type, keep_stage1_loaded)
+        pipe.init_stage2_model(cldm, diffusion, infer_type)
         pipe.init_pipeline()
 
         image = pipe.run()
@@ -155,6 +157,7 @@ class DiffBIR_sample:
             "stage1_model": ("STAGE1",),
             "cldm": ("CLDM",),
             "diffusion": ("DIFFUSION",),
+            "infer_type": ("INFER_TYPE",),
             "image": ("IMAGE",),
             "upscale_ratio": ("FLOAT", {"default": 2, "min": 0.1, "max": 8.0, "step": 0.1}),
             "steps": ("INT", {"default": 20, "min": 1, "max": 0xffffffffffffffff, "step": 1}),
@@ -184,16 +187,12 @@ class DiffBIR_sample:
     CATEGORY = "DiffBIR"
     DESCRIPTION = """"""
 
-    def sample(self, stage1_model, cldm, diffusion, image, upscale_ratio, steps, cfg, 
+    def sample(self, stage1_model, cldm, diffusion, infer_type, image, upscale_ratio, steps, cfg, 
                better_start, tiled, tile_size, tile_stride, pos_prompt, neg_prompt, 
                seed, device):
         device = check_device(device)
+        keep_stage1_loaded = True
         print(image.shape)
-
-        # # stage1 tile by resolution
-        # stage1_tile = False
-        # if image.shape[1] * image.shape[2] > 768 * 1024:
-        #     stage1_tile = True
 
         args = argparse.Namespace(
             task='sr',
@@ -225,8 +224,8 @@ class DiffBIR_sample:
         )
         
         pipe = BSRInferenceLoop(args)
-        pipe.init_stage1_model(stage1_model)
-        pipe.init_stage2_model(cldm, diffusion)
+        pipe.init_stage1_model(stage1_model, infer_type, keep_stage1_loaded)
+        pipe.init_stage2_model(cldm, diffusion, infer_type)
         pipe.init_pipeline()
 
         image = pipe.run()

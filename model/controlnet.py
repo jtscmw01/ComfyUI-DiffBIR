@@ -20,6 +20,10 @@ class ControlledUnetModel(UNetModel):
     def forward(self, x, timesteps=None, context=None, control=None, only_mid_control=False, **kwargs):
         hs = []
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
+        model_dtype = next(self.time_embed.parameters())
+        if model_dtype.dtype == torch.float16:
+            t_emb = t_emb.half()
+
         emb = self.time_embed(t_emb)
         h = x.type(self.dtype)
         for module in self.input_blocks:
@@ -262,6 +266,10 @@ class ControlNet(nn.Module):
 
     def forward(self, x, hint, timesteps, context, **kwargs):
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
+        model_dtype = next(self.time_embed.parameters())
+        if model_dtype.dtype == torch.float16:
+            t_emb = t_emb.half()
+
         emb = self.time_embed(t_emb)
         x = torch.cat((x, hint), dim=1)
         outs = []

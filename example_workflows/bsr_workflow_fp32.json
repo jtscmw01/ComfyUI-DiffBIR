@@ -1,16 +1,41 @@
 {
-  "last_node_id": 4,
-  "last_link_id": 5,
+  "last_node_id": 6,
+  "last_link_id": 11,
   "nodes": [
+    {
+      "id": 4,
+      "type": "PreviewImage",
+      "pos": [
+        1508,
+        -5
+      ],
+      "size": {
+        "0": 619.78515625,
+        "1": 608.61328125
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 11
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
     {
       "id": 1,
       "type": "LoadImage",
       "pos": [
-        364.171875,
-        287.46875
+        473,
+        281
       ],
       "size": [
-        315,
+        326.1577546081544,
         314
       ],
       "flags": {},
@@ -21,7 +46,7 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            5
+            10
           ],
           "shape": 3,
           "slot_index": 0
@@ -37,20 +62,20 @@
         "Node name for S&R": "LoadImage"
       },
       "widgets_values": [
-        "1_lq.jpg",
+        "0.png",
         "image"
       ]
     },
     {
-      "id": 2,
+      "id": 6,
       "type": "Simple_load",
       "pos": [
-        366,
-        110
+        469,
+        -6
       ],
       "size": {
         "0": 315,
-        "1": 98
+        "1": 142
       },
       "flags": {},
       "order": 1,
@@ -60,16 +85,15 @@
           "name": "stage1_model",
           "type": "STAGE1",
           "links": [
-            1
+            6
           ],
-          "shape": 3,
-          "slot_index": 0
+          "shape": 3
         },
         {
           "name": "cldm",
           "type": "CLDM",
           "links": [
-            2
+            7
           ],
           "shape": 3,
           "slot_index": 1
@@ -78,29 +102,39 @@
           "name": "diffusion",
           "type": "DIFFUSION",
           "links": [
-            3
+            8
           ],
           "shape": 3,
           "slot_index": 2
+        },
+        {
+          "name": "infer_type",
+          "type": "INFER_TYPE",
+          "links": [
+            9
+          ],
+          "shape": 3,
+          "slot_index": 3
         }
       ],
       "properties": {
         "Node name for S&R": "Simple_load"
       },
       "widgets_values": [
-        "cuda"
+        "cuda",
+        "float32"
       ]
     },
     {
-      "id": 3,
+      "id": 5,
       "type": "DiffBIR_sample",
       "pos": [
-        970,
-        111
+        973,
+        -5
       ],
       "size": {
         "0": 400,
-        "1": 426
+        "1": 446
       },
       "flags": {},
       "order": 2,
@@ -109,22 +143,29 @@
         {
           "name": "stage1_model",
           "type": "STAGE1",
-          "link": 1
+          "link": 6,
+          "slot_index": 0
         },
         {
           "name": "cldm",
           "type": "CLDM",
-          "link": 2
+          "link": 7
         },
         {
           "name": "diffusion",
           "type": "DIFFUSION",
-          "link": 3
+          "link": 8
+        },
+        {
+          "name": "infer_type",
+          "type": "INFER_TYPE",
+          "link": 9
         },
         {
           "name": "image",
           "type": "IMAGE",
-          "link": 5
+          "link": 10,
+          "slot_index": 4
         }
       ],
       "outputs": [
@@ -132,7 +173,7 @@
           "name": "image",
           "type": "IMAGE",
           "links": [
-            4
+            11
           ],
           "shape": 3,
           "slot_index": 0
@@ -142,7 +183,7 @@
         "Node name for S&R": "DiffBIR_sample"
       },
       "widgets_values": [
-        4,
+        2,
         20,
         4,
         true,
@@ -151,76 +192,59 @@
         480,
         "best quality, hdr, 4k",
         "low quality, blurry, low-resolution, noisy, unsharp, weird textures",
-        1111078372870773,
-        "randomize",
+        1,
+        "fixed",
         "cuda"
       ]
-    },
-    {
-      "id": 4,
-      "type": "PreviewImage",
-      "pos": [
-        1539,
-        96
-      ],
-      "size": [
-        619.78515625,
-        608.61328125
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 4
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
     }
   ],
   "links": [
     [
-      1,
-      2,
+      6,
+      6,
       0,
-      3,
+      5,
       0,
       "STAGE1"
     ],
     [
-      2,
-      2,
+      7,
+      6,
       1,
-      3,
+      5,
       1,
       "CLDM"
     ],
     [
-      3,
+      8,
+      6,
       2,
-      2,
-      3,
+      5,
       2,
       "DIFFUSION"
     ],
     [
-      4,
+      9,
+      6,
       3,
+      5,
+      3,
+      "INFER_TYPE"
+    ],
+    [
+      10,
+      1,
       0,
+      5,
       4,
-      0,
       "IMAGE"
     ],
     [
+      11,
       5,
-      1,
       0,
-      3,
-      3,
+      4,
+      0,
       "IMAGE"
     ]
   ],

@@ -60,13 +60,15 @@ def pad_to_multiples_of(imgs: torch.Tensor, multiple: int) -> torch.Tensor:
 
 class Pipeline:
 
-    def __init__(self, stage1_model: nn.Module, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str) -> None:
+    def __init__(self, stage1_model: nn.Module, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str, infer_type='float32', keep_stage1_loaded=True) -> None:
         self.stage1_model = stage1_model
         self.cldm = cldm
         self.diffusion = diffusion
         self.cond_fn = cond_fn
         self.device = device
         self.final_size: Tuple[int] = None
+        self.infer_type = infer_type
+        self.keep_stage1_loaded = keep_stage1_loaded
 
     def set_final_size(self, lq: torch.Tensor) -> None:
         h, w = lq.shape[1:3]
@@ -94,7 +96,10 @@ class Pipeline:
         bs, _, ori_h, ori_w = clean.shape
         # pad: ensure that height & width are multiples of 64
         pad_clean = pad_to_multiples_of(clean, multiple=64)
+        if self.infer_type == 'float16':
+            pad_clean = pad_clean.half()
         h, w = pad_clean.shape[2:]
+        
         # prepare conditon
         if not tiled:
             cond = self.cldm.prepare_condition(pad_clean, [pos_prompt] * bs)
@@ -102,6 +107,7 @@ class Pipeline:
         else:
             cond = self.cldm.prepare_condition_tiled(pad_clean, [pos_prompt] * bs, tile_size, tile_stride)
             uncond = self.cldm.prepare_condition_tiled(pad_clean, [neg_prompt] * bs, tile_size, tile_stride)
+
         if self.cond_fn:
             self.cond_fn.load_target(pad_clean * 2 - 1)
         old_control_scales = self.cldm.control_scales
@@ -115,16 +121,25 @@ class Pipeline:
                 x_0 = self.cldm.vae_encode(low_freq)
             else:
                 x_0 = self.cldm.vae_encode_tiled(low_freq, tile_size, tile_stride)
-            x_T = self.diffusion.q_sample(
-                x_0,
-                torch.full((bs, ), self.diffusion.num_timesteps - 1, dtype=torch.long, device=self.device),
-                torch.randn(x_0.shape, dtype=torch.float32, device=self.device)
-            )
-            # print(f"diffusion sqrt_alphas_cumprod: {self.diffusion.sqrt_alphas_cumprod[-1]}")
+            if self.infer_type == 'float16':
+                x_T = self.diffusion.q_sample(
+                    x_0,
+                    torch.full((bs, ), self.diffusion.num_timesteps - 1, dtype=torch.long, device=self.device),
+                    torch.randn(x_0.shape, dtype=torch.float16, device=self.device)
+                )
+            else:
+                x_T = self.diffusion.q_sample(
+                    x_0,
+                    torch.full((bs, ), self.diffusion.num_timesteps - 1, dtype=torch.long, device=self.device),
+                    torch.randn(x_0.shape, dtype=torch.float32, device=self.device)
+                )
         else:
-            x_T = torch.randn((bs, 4, h // 8, w // 8), dtype=torch.float32, device=self.device)
+            if self.infer_type == 'float16':
+                x_T = torch.randn((bs, 4, h // 8, w // 8), dtype=torch.float16, device=self.device)
+            else:
+                x_T = torch.randn((bs, 4, h // 8, w // 8), dtype=torch.float32, device=self.device)
         ### run sampler
-        sampler = SpacedSampler(self.diffusion.betas)
+        sampler = SpacedSampler(self.diffusion.betas, infer_type=self.infer_type)
         z = sampler.sample(
             model=self.cldm, device=self.device, steps=steps, batch_size=bs, x_size=(4, h // 8, w // 8),
             cond=cond, uncond=uncond, cfg_scale=cfg_scale, x_T=x_T, progress=True,
@@ -158,7 +173,10 @@ class Pipeline:
     ) -> np.ndarray:
         # image to tensor
         # lq = torch.tensor((lq / 255.).clip(0, 1), dtype=torch.float32, device=self.device)
-        lq = torch.tensor(lq, dtype=torch.float32, device=self.device)
+        if self.infer_type == 'float16':
+            lq = torch.tensor(lq, dtype=torch.float16, device=self.device)
+        else:
+            lq = torch.tensor(lq, dtype=torch.float32, device=self.device)
         lq = rearrange(lq, "n h w c -> n c h w").contiguous()
         # set pipeline output size
         
@@ -189,11 +207,13 @@ class Pipeline:
 
 class BSRNetPipeline(Pipeline):
 
-    def __init__(self, bsrnet: RRDBNet, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str, upscale: float) -> None:
-        super().__init__(bsrnet, cldm, diffusion, cond_fn, device)
+    def __init__(self, bsrnet: RRDBNet, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str, upscale: float, infer_type='float32', keep_stage1_loaded=True) -> None:
+        super().__init__(bsrnet, cldm, diffusion, cond_fn, device, infer_type)
         self.upscale = upscale
         self.stage1_scale = 4
         self.device = device
+        self.infer_type = infer_type
+        self.keep_stage1_loaded = keep_stage1_loaded
 
     def set_final_size(self, lq: torch.Tensor) -> None:
         h, w = lq.shape[2:]
@@ -239,6 +259,9 @@ class BSRNetPipeline(Pipeline):
         else:
             clean = self.stage1_model(lq)
 
+        if not self.keep_stage1_loaded:
+            self.stage1_model.cpu()
+
         if min(self.final_size) < 512:
             clean = resize_short_edge_to(clean, size=512)
         else:
@@ -249,11 +272,13 @@ class BSRNetPipeline(Pipeline):
 
 class SwinIRPipeline(Pipeline):
 
-    def __init__(self, swinir: SwinIR, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str, upscale: float) -> None:
-        super().__init__(swinir, cldm, diffusion, cond_fn, device)
+    def __init__(self, swinir: SwinIR, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str, upscale: float, infer_type='float32', keep_stage1_loaded=True) -> None:
+        super().__init__(swinir, cldm, diffusion, cond_fn, device, infer_type, keep_stage1_loaded)
         self.upscale = upscale
         self.stage1_scale = 1
         self.device = device
+        self.infer_type = infer_type
+        self.keep_stage1_loaded = keep_stage1_loaded
 
     def set_final_size(self, lq: torch.Tensor) -> None:
         h, w = lq.shape[2:]
@@ -303,6 +328,8 @@ class SwinIRPipeline(Pipeline):
             clean = self.tile_process(pad_lq, tile_size, tile_stride, self.stage1_model)
         else:
             clean = self.stage1_model(pad_lq)
+        if not self.keep_stage1_loaded:
+            self.stage1_model.cpu()
 
         clean = clean[:, :, :ori_h, :ori_w]
 
@@ -311,11 +338,13 @@ class SwinIRPipeline(Pipeline):
 
 class SCUNetPipeline(Pipeline):
 
-    def __init__(self, scunet: SCUNet, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str, upscale: float) -> None:
-        super().__init__(scunet, cldm, diffusion, cond_fn, device)
+    def __init__(self, scunet: SCUNet, cldm: ControlLDM, diffusion: Diffusion, cond_fn: Optional[Guidance], device: str, upscale: float, infer_type='float32', keep_stage1_loaded=True) -> None:
+        super().__init__(scunet, cldm, diffusion, cond_fn, device, infer_type, keep_stage1_loaded)
         self.upscale = upscale
         self.stage1_scale = 1
         self.device = device
+        self.infer_type = infer_type
+        self.keep_stage1_loaded = keep_stage1_loaded
 
     def set_final_size(self, lq: torch.Tensor) -> None:
         h, w = lq.shape[2:]
@@ -359,6 +388,8 @@ class SCUNetPipeline(Pipeline):
             clean = self.tile_process(lq, tile_size, tile_stride, self.stage1_model)
         else:
             clean = self.stage1_model(lq)
+        if not self.keep_stage1_loaded:
+            self.stage1_model.cpu()
 
         if min(self.final_size) < 512:
             clean = resize_short_edge_to(clean, size=512)
