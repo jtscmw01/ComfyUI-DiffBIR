@@ -18,7 +18,7 @@ TODO:
 - **2024.05.16** ✅ bfr support
 - **2024.05.16** ✅ bid support
 - **2024.05.16** ✅ bfr and bid workflow
-- **2024.05.21** ✅ support fp16 inference, now it can run on a 8GB GPU
+- **2024.05.21** ✅ support fp16 inference, now it can run on an 8GB GPU
 - [ ] multi images support
 - [ ] stage1 and stage2 sampler split
 
