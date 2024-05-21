@@ -62,8 +62,8 @@ put the models into `ComfyUI/models/diffbir/`
 
 
 # Workflows
-|           task           |                              workflow                             |
-|:------------------------:|:-----------------------------------------------------------------:|
-| Blind Super Resolution   |  [  bsr_workflow.json  ](  example_workflows/bsr_workflow.json  ) |
-| Blind Face Restoration   |  [  bfr_workflow.json  ](  example_workflows/bfr_workflow.json  ) |
-| Blind Image Denoising    |  [  bid_workflow.json  ](  example_workflows/bid_workflow.json  ) |
+|           task           |                              workflow                                  |
+|:------------------------:|:----------------------------------------------------------------------:|
+| Blind Super Resolution   |  [  bsr_workflow.json  ](  example_workflows/bsr_workflow_fp32.json  ) |
+| Blind Face Restoration   |  [  bfr_workflow.json  ](  example_workflows/bfr_workflow_fp32.json  ) |
+| Blind Image Denoising    |  [  bid_workflow.json  ](  example_workflows/bid_workflow_fp32.json  ) |
